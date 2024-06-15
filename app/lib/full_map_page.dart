@@ -33,6 +33,13 @@ void cameraListener(controller) {
         'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json';
 
     return Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            mapController!.requestMyLocationLatLng().then((value)
+              => value != null ? mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: value, zoom: 17.0))) : null);
+          },
+          child: const Icon(Icons.my_location),
+        ),
         body: MapLibreMap(
       myLocationEnabled: true,
       myLocationTrackingMode: MyLocationTrackingMode.trackingCompass,
@@ -41,6 +48,7 @@ void cameraListener(controller) {
       initialCameraPosition: const CameraPosition(bearing: 0.0, target: LatLng(51.8, 9.7), tilt: 0.0, zoom: 5.5),
       trackCameraPosition: true,
       onMapCreated: (controller) {
+        mapController = controller;
         cameraListener(controller);
             controller.requestMyLocationLatLng().then((value)
               => value != null ? controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: value, zoom: 17.0))) : null);
