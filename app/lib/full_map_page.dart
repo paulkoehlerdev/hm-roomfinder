@@ -2,6 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'dart:math';
 
+Map<String,dynamic> geojson = {
+"type": "FeatureCollection",
+"name": "example_geojson",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "pk": 1, "name": "F0.02", "storey_id": 1 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 11.568194183434708, 48.142868235160421 ], [ 11.568301598509459, 48.142837212756163 ], [ 11.568232379769954, 48.142731154911601 ], [ 11.568124770805175, 48.142762565095914 ], [ 11.568194183434708, 48.142868235160421 ] ] ] } },
+{ "type": "Feature", "properties": { "pk": 2, "name": "F0.01a", "storey_id": 1 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 11.568193989544682, 48.142868429050452 ], [ 11.568301210729405, 48.142837406646187 ], [ 11.568320793622096, 48.142869204610555 ], [ 11.568290934557995, 48.142877541881703 ], [ 11.568292485678208, 48.142881419682233 ], [ 11.568216868567823, 48.142902941475192 ], [ 11.568193989544682, 48.142868429050452 ] ] ] } },
+]
+};
+
+final geojsonSource = GeojsonSourceProperties(
+  data: geojson,
+);
+
+const fillLayer = FillLayerProperties(
+  fillColor: '#ff0000',
+  fillOpacity: 0.5,
+  fillOutlineColor: '#000000',
+);
+
 class FullMap extends StatefulWidget {
   const FullMap({super.key});
 
@@ -52,6 +72,9 @@ void cameraListener(controller) {
         cameraListener(controller);
             controller.requestMyLocationLatLng().then((value)
               => value != null ? controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: value, zoom: 17.0))) : null);
+            //adding the example geojson
+            controller.addSource('example_geojson', geojsonSource);
+            controller.addFillLayer('example_geojson', 'example_geojson', fillLayer);
           },
     ));
   }
