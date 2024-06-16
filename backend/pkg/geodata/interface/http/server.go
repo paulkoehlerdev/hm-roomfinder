@@ -18,9 +18,9 @@ func Run(application application.Application, bindAddr string, logger *slog.Logg
 	doc := redoc.Redoc{
 		Title:       "Example API",
 		Description: "Example API Description",
-		SpecFile:    "./pkg/geodata/interface/http/api/geodata/openapi.yaml",
+		SpecFile:    "./pkg/geodata/interface/http/api/geodata/openapi.json",
 		SpecPath:    "/openapi.yaml",
-		DocsPath:    "/docs",
+		DocsPath:    "/",
 	}
 
 	RegisterGeodataServer(
