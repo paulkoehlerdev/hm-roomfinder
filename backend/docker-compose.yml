@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    image: golang
+    container_name: hm_roomfinder_geodata_backend
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: go run ./cmd/hmroomfinder
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  db:
+    image: postgis/postgis:12-3.4-alpine
+    container_name: hm_roomfinder_geodata_postgis
+    environment:
+      POSTGRES_USER: hmroomfinder
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: hmroomfinder
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

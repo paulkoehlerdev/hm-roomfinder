@@ -1,0 +1,7 @@
+package: geodata
+generate:
+  std-http-server: true
+  strict-server: true
+  models: true
+  embedded-spec: true
+output: gen.go
