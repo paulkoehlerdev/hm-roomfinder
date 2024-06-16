@@ -8,6 +8,7 @@ import (
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/interface/http/handlers"
 	"log/slog"
 	"net/http"
+	"time"
 )
 
 func Run(application application.Application, bindAddr string, logger *slog.Logger) func() {
@@ -17,8 +18,9 @@ func Run(application application.Application, bindAddr string, logger *slog.Logg
 	)
 
 	server := &http.Server{
-		Addr:    bindAddr,
-		Handler: mux,
+		Addr:              bindAddr,
+		Handler:           mux,
+		ReadHeaderTimeout: time.Second * 1,
 	}
 
 	go func() {
