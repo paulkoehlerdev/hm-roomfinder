@@ -62,6 +62,7 @@ func run(ctx context.Context, args []string, stdout io.Writer, stderr io.Writer)
 	application := application.New(geodataService)
 
 	serverShutdown := http.Run(application, config.Server.Bind, logger)
+
 	gful.Add(serverShutdown)
 
 	<-ctx.Done()
