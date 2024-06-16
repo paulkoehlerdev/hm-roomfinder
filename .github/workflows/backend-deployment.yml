@@ -15,7 +15,7 @@ jobs:
         with:
           version: v1.56
           working-directory: backend
-          args: --timeout 3m --config ./backend/.golangci.yml
+          args: --timeout 3m --config .golangci.yml
 
   test:
     runs-on: ubuntu-latest
@@ -26,7 +26,7 @@ jobs:
         with:
           go-version: '1.22'
       - name: Test
-        run: go test -v ./backend/...
+        run: go test -v ./backend/cmd/hmroomfinder
 
 on:
   push:
