@@ -14,6 +14,7 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.56
+          working-directory: backend
           args: --timeout 3m --config backend/.golangci.yml
 
   test:
@@ -31,3 +32,5 @@ on:
   push:
     paths:
       - '**.go'
+
+  workflow_dispatch:
