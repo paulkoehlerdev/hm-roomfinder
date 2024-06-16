@@ -13,6 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   provider: ^6.1.2
   maplibre_gl: ^0.20.0
+  location: ^6.0.2
 
 dev_dependencies:
   flutter_test:

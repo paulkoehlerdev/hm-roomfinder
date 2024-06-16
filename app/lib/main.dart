@@ -1,4 +1,5 @@
 import 'package:app/home_view.dart';
+import 'package:app/location_permission_requester.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -22,7 +23,9 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       themeMode: ThemeMode.system,
-      home: const HomeView(),
+      home: const LocationPermissonRequester(
+        child: HomeView(),
+      ),
     );
   }
 }
