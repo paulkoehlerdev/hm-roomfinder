@@ -45,7 +45,7 @@ func MuxFromGeodataServer(s handlers.GeodataServerImpl, logger *slog.Logger) htt
 	ssi := geodata.NewStrictHandler(s, []geodata.StrictMiddlewareFunc{
 		LoggingMiddleware(logger),
 	})
-	return geodata.HandlerFromMux(ssi, mux)
+	return geodata.HandlerFromMuxWithBaseURL(ssi, mux, "/v1")
 }
 
 func LoggingMiddleware(logger *slog.Logger) geodata.StrictMiddlewareFunc {

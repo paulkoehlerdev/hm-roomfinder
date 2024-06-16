@@ -12,16 +12,11 @@ externalDocs:
   description: find more info here
   url: http://geojson.org/geojson-spec.html#geometry-objects
 
-schemes:
-  - http
-
-host: myHost
-basePath: /api/v1
-consumes:
-  - "application/geo+json"
-produces:
-  - "application/geo+json"
-  - "application/json"
+servers:
+  - url: https://api.hmroomfinder.gosmroutify.xyz/v1/
+    description: Production Server
+  - url: http://localhost:8080/v1/
+    description: Local Dev Environment
 
 paths:
   /building:
