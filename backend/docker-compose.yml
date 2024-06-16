@@ -5,23 +5,25 @@ services:
     image: docker.io/golang
     container_name: hm_roomfinder_geodata_backend
     working_dir: /app
+    restart: always
     volumes:
       - .:/app
     command: go run ./cmd/hmroomfinder
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     depends_on:
       - db
 
   db:
     image: docker.io/postgis/postgis:12-3.4-alpine
     container_name: hm_roomfinder_geodata_postgis
+    restart: always
     environment:
       POSTGRES_USER: hmroomfinder
       POSTGRES_PASSWORD: password
       POSTGRES_DB: hmroomfinder
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
