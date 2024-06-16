@@ -26,6 +26,8 @@ services:
       - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ../geodata/pgdump:/docker-entrypoint-initdb.d
+      - ./pkg/geodata/infrastructure/pgsql/geodataRepository/schema.sql:/docker-entrypoint-initdb.d/00-schema.sql
 
 volumes:
   pgdata:
