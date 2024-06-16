@@ -42,30 +42,50 @@ void cameraListener(controller, updateZoomLevelProvider) {
     LatLng oldCameraPose = LatLng(0.0, 0.0);
     double oldZoom = 0.0;
     double zoomThreshold = 14.0;
+    double locationThreshold = 0.1;
+    bool zoomChanged = false;
+    bool locationChanged = false;
     controller!.addListener(() {
       if (controller!.cameraPosition != null){
-      if (pythLatLong(oldCameraPose, controller!.cameraPosition!.target) > 0.1 && controller!.cameraPosition!.zoom > 14.0){
-        oldCameraPose = controller!.cameraPosition!.target;
-        print('Camera moved to pose ${controller!.cameraPosition!.target}');
-        loadRooms(controller!.cameraPosition!.target); 
-      }}
-      if (oldZoom > zoomThreshold && controller!.cameraPosition!.zoom < zoomThreshold 
-        || oldZoom < zoomThreshold && controller!.cameraPosition!.zoom > zoomThreshold){
-        oldZoom = controller!.cameraPosition!.zoom;
-        updateZoomLevelProvider.updateZoomLevel(controller!.cameraPosition!.zoom > zoomThreshold);
-        print('Zoom changed to ${controller!.cameraPosition!.zoom}');
+        zoomChanged = oldZoom > zoomThreshold && controller!.cameraPosition!.zoom < zoomThreshold || oldZoom < zoomThreshold && controller!.cameraPosition!.zoom > zoomThreshold;
+        locationChanged = pythLatLong(oldCameraPose, controller!.cameraPosition!.target) > locationThreshold;
+        if (locationChanged || zoomChanged ){
+          // if zooming in
+          if (controller!.cameraPosition!.zoom > zoomThreshold){
+            oldCameraPose = controller!.cameraPosition!.target;
+            loadRooms(controller!.cameraPosition!.target, locationThreshold);
+            oldZoom = controller!.cameraPosition!.zoom;
+            updateZoomLevelProvider.updateZoomLevel(controller!.cameraPosition!.zoom > zoomThreshold);
+            zoomChanged = false; 
+            locationChanged = false;
+          // if zooming out
+          } else {
+            oldCameraPose = controller!.cameraPosition!.target;
+            delRooms(controller!.cameraPosition!.target); 
+            oldZoom = controller!.cameraPosition!.zoom;
+            updateZoomLevelProvider.updateZoomLevel(controller!.cameraPosition!.zoom > zoomThreshold);
+            zoomChanged = false;
+            locationChanged = false;
+        }
+        }
       }
     });
 }
 
-void loadRooms(LatLng cameraPosition){
+void loadRooms(LatLng cameraPosition, double locationThreshold){
   //example geojson location
   LatLng geojsonLoc = const LatLng(48.142868235160421, 11.568194183434708);
-  if (pythLatLong(cameraPosition, geojsonLoc) < 0.1){
+  if (pythLatLong(cameraPosition, geojsonLoc) < locationThreshold){
     //adding the example geojson
     mapController!.addSource('example_geojson', geojsonSource);
     mapController!.addFillLayer('example_geojson', 'example_geojson', fillLayer);
   }
+}
+
+void delRooms(LatLng cameraPosition){
+  //example geojson
+  mapController!.removeLayer('example_geojson');
+  mapController!.removeSource('example_geojson');
 }
 
   @override
