@@ -1,0 +1,85 @@
+linters:
+  disable-all: true
+  enable:
+    - lll
+    - funlen
+    - gosec
+    - govet
+    - bodyclose
+    - dogsled
+    - dupl
+    - errcheck
+    - gochecknoglobals
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - gosimple
+    - ineffassign
+    - govet
+    - misspell
+    - nakedret
+    - prealloc
+    - exportloopref
+    - staticcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
+    - sloglint
+
+linters-settings:
+  lll:
+    line-length: 200
+
+  funlen:
+    lines: 100
+    statements: 50
+
+  goimports:
+    # Put imports beginning with prefix after 3rd-party packages.
+    # It's a comma-separated list of prefixes.
+    local-prefixes: bitbucket.org/check24/tippspiel
+
+  govet:
+    enable-all: true
+
+  misspell:
+    ignore-words:
+      - goald
+
+  unparam:
+    check-exported: true
+
+run:
+  skip-files:
+    # Ignore test files
+    - ".*_test.go"
+
+issues:
+  # don't skip warning about doc comments
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-rules:
+    # Ignore fieldalignment
+    - linters: [ govet ]
+      text: "fieldalignment: struct with (.*) pointer bytes could be (.*)"
+    # Ignore fieldalignment
+    - linters: [ govet ]
+      text: "fieldalignment: struct of size (.*) could be (.*)"
+    # Ignore some comment rule
+    - linters: [ stylecheck ]
+      text: "ST1000: at least one file in a package should have a package comment"
+    # Don't warn of potential file inclusion (dynamic file paths)
+    - linters: [ gosec ]
+      text: "Potential file inclusion via variable"
+    - linters: [ gosec ]
+      text: "Implicit memory aliasing in for loop"
+
+output:
+  sort-results: true
