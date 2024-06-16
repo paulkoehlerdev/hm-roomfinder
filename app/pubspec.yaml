@@ -16,6 +16,9 @@ dependencies:
   location: ^6.0.2
   openapi_generator_annotations: ^5.0.2
 
+  geodata_api_sdk:
+    path: ../geodata_api_sdk
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
