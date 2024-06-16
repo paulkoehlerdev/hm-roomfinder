@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: golang
+    image: docker.io/golang
     container_name: hm_roomfinder_geodata_backend
     working_dir: /app
     volumes:
@@ -14,7 +14,7 @@ services:
       - db
 
   db:
-    image: postgis/postgis:12-3.4-alpine
+    image: docker.io/postgis/postgis:12-3.4-alpine
     container_name: hm_roomfinder_geodata_postgis
     environment:
       POSTGRES_USER: hmroomfinder
