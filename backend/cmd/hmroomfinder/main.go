@@ -52,7 +52,7 @@ func run(ctx context.Context, args []string, stdout io.Writer) error {
 
 	logger.Info("configuration loaded", "config", config)
 
-	geodataRepo, geodataRepoShutdown, err := geodataRepository.NewRepository(config.Database.ConnString())
+	geodataRepo, geodataRepoShutdown, err := geodataRepository.NewRepository(config.Database.ConnString(), logger)
 	if err != nil {
 		return fmt.Errorf("creating geodata repository: %w", err)
 	}

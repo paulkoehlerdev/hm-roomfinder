@@ -19,14 +19,17 @@ type GeodataRepositoryImpl struct {
 	q *Queries
 }
 
-func NewRepository(dbConnString string) (*GeodataRepositoryImpl, func(), error) {
+func NewRepository(dbConnString string, logger *slog.Logger) (*GeodataRepositoryImpl, func(), error) {
 	conn, err := pgx.Connect(context.Background(), dbConnString)
 	if err != nil {
 		return nil, graceful.NoOp, err
 	}
 
 	cancelFn := func() {
-		conn.Close(context.Background()) //nolint:errcheck
+		err := conn.Close(context.Background())
+		if err != nil {
+			logger.Error("failed to close connection", "error", err)
+		}
 	}
 
 	q := New(conn)
