@@ -26,7 +26,7 @@ func NewRepository(dbConnString string) (*GeodataRepositoryImpl, func(), error) 
 	}
 
 	cancelFn := func() {
-		conn.Close(context.Background())
+		conn.Close(context.Background()) //nolint:errcheck
 	}
 
 	q := New(conn)

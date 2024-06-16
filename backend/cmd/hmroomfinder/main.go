@@ -23,7 +23,7 @@ func main() {
 	if err := run(ctx, os.Args, os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		cancel()
-		os.Exit(1)
+		os.Exit(1) //nolint:gocritic
 	}
 }
 

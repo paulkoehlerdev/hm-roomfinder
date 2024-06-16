@@ -88,7 +88,7 @@ func (s GeodataServerImpl) GetRoom(ctx context.Context, request geodata.GetRoomR
 }
 
 func geojsonFeatureCollectionToGeodataFeatureCollection[T geojson.Coordinates](featureCollection geojson.FeatureCollection[T]) (geodata.FeatureCollection, error) {
-	var convFeatures []geodata.Feature
+	convFeatures := make([]geodata.Feature, 0, len(featureCollection.Features))
 
 	for _, feature := range featureCollection.Features {
 		feature, err := geojsonFeatureToGeodataFeature[T](feature)

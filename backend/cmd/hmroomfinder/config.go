@@ -48,11 +48,11 @@ func (d databaseConfig) ConnString() string {
 }
 
 func loadConfig(path string) (*config, error) {
-	var config config
-	err := hclsimple.DecodeFile(path, nil, &config)
+	var conf config
+	err := hclsimple.DecodeFile(path, nil, &conf)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config file: %w", err)
 	}
 
-	return &config, err
+	return &conf, err
 }

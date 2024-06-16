@@ -51,7 +51,7 @@ func MuxFromGeodataServer(s handlers.GeodataServerImpl, logger *slog.Logger) htt
 func LoggingMiddleware(logger *slog.Logger) geodata.StrictMiddlewareFunc {
 	return func(f strictnethttp.StrictHTTPHandlerFunc, operationID string) strictnethttp.StrictHTTPHandlerFunc {
 		return func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (response interface{}, err error) {
-			logger.Debug("Request Recieved", "path", r.URL.Path)
+			logger.Debug("Request Received", "path", r.URL.Path)
 			response, err = f(ctx, w, r, request)
 			if err != nil {
 				logger.Debug("Request Failed", "path", r.URL.Path, "error", err)
