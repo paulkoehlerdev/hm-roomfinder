@@ -49,10 +49,6 @@ Map<String, dynamic> geojson = {
   ]
 };
 
-final geojsonSource = GeojsonSourceProperties(
-  data: geojson,
-);
-
 const fillLayer = FillLayerProperties(
   fillColor: '#ff0000',
   fillOpacity: 0.5,
@@ -115,14 +111,30 @@ class FullMapState extends State<FullMap> {
     });
   }
 
+  void loadLevel(){
+
+  }
+
   void loadRooms(LatLng cameraPosition, double locationThreshold) {
-    //example geojson location
+    //example geojson
+    String layerId = 'room_example_geojson';
+    String sourceId = 'room_example_geojson';
     LatLng geojsonLoc = const LatLng(48.142868235160421, 11.568194183434708);
+    GeojsonSourceProperties geojsonSource = GeojsonSourceProperties(
+      data: geojson,
+    );
     if (pythLatLong(cameraPosition, geojsonLoc) < locationThreshold) {
-      //adding the example geojson
-      mapController!.addSource('room_example_geojson', geojsonSource);
-      mapController!.addFillLayer(
-          'room_example_geojson', 'room_example_geojson', fillLayer);
+      mapController!.getSourceIds().then((sourceIds) {
+        if (!sourceIds.contains(sourceId)) {
+          mapController!.addSource(sourceId, geojsonSource);
+        }
+      });
+      mapController!.getLayerIds().then((layerIds) {
+        if (!layerIds.contains(layerId)) {
+          mapController!.addFillLayer(
+              layerId, layerId, fillLayer);
+        }
+      });
     }
   }
 
@@ -168,8 +180,9 @@ class FullMapState extends State<FullMap> {
           child: const Icon(Icons.my_location),
         ),
         body: MapLibreMap(
+          tiltGesturesEnabled: false,
           myLocationEnabled: true,
-          myLocationTrackingMode: MyLocationTrackingMode.trackingCompass,
+          //myLocationTrackingMode: MyLocationTrackingMode.trackingCompass,
           myLocationRenderMode: MyLocationRenderMode.compass,
           styleString: styleUrl,
           initialCameraPosition: const CameraPosition(
