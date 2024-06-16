@@ -12,8 +12,8 @@ logger {
 }
 
 database {
-#  host = "hm_roomfinder_geodata_postgis"
-  host = "localhost"
+  host = "hm_roomfinder_geodata_postgis"
+#  host = "localhost"
   port = 5432
   username = "hmroomfinder"
   password = "password"
