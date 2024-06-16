@@ -8,10 +8,6 @@ info:
     name: MIT
     url: https://opensource.org/licenses/mit-license.php
 
-externalDocs:
-  description: find more info here
-  url: http://geojson.org/geojson-spec.html#geometry-objects
-
 servers:
   - url: https://api.hmroomfinder.gosmroutify.xyz/v1/
     description: Production Server

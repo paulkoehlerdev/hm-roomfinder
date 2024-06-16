@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"github.com/mvrilo/go-redoc"
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/application"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/interface/http/api/geodata"
@@ -12,10 +13,23 @@ import (
 )
 
 func Run(application application.Application, bindAddr string, logger *slog.Logger) func() {
-	mux := MuxFromGeodataServer(
+	mux := http.NewServeMux()
+
+	doc := redoc.Redoc{
+		Title:       "Example API",
+		Description: "Example API Description",
+		SpecFile:    "./pkg/geodata/interface/http/api/geodata/openapi.yaml",
+		SpecPath:    "/openapi.yaml",
+		DocsPath:    "/docs",
+	}
+
+	RegisterGeodataServer(
+		mux,
 		handlers.NewGeodataServer(application, logger),
 		logger,
 	)
+
+	mux.Handle("/", doc.Handler())
 
 	server := &http.Server{
 		Addr:              bindAddr,
@@ -40,8 +54,7 @@ func Run(application application.Application, bindAddr string, logger *slog.Logg
 	}
 }
 
-func MuxFromGeodataServer(s handlers.GeodataServerImpl, logger *slog.Logger) http.Handler {
-	mux := http.NewServeMux()
+func RegisterGeodataServer(mux *http.ServeMux, s handlers.GeodataServerImpl, logger *slog.Logger) http.Handler {
 	ssi := geodata.NewStrictHandler(s, []geodata.StrictMiddlewareFunc{
 		LoggingMiddleware(logger),
 	})
