@@ -20,13 +20,14 @@ func main() {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill, syscall.SIGTERM)
 	defer cancel()
 
-	if err := run(ctx, os.Args, os.Stdout, os.Stderr); err != nil {
+	if err := run(ctx, os.Args, os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
+		cancel()
 		os.Exit(1)
 	}
 }
 
-func run(ctx context.Context, args []string, stdout io.Writer, stderr io.Writer) error {
+func run(ctx context.Context, args []string, stdout io.Writer) error {
 	flagSet := flag.NewFlagSet(args[0], flag.ContinueOnError)
 
 	gful := graceful.New()

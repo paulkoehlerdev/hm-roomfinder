@@ -15,7 +15,6 @@ linters:
     - gocritic
     - gocyclo
     - gofmt
-    - goimports
     - gosimple
     - ineffassign
     - govet
@@ -70,6 +69,9 @@ issues:
     # Ignore some comment rule
     - linters: [ stylecheck ]
       text: "ST1000: at least one file in a package should have a package comment"
+    # Disable naming check
+    - linters: [ stylecheck ]
+      text: "ST1003: should not use MixedCaps in package name"
     # Don't warn of potential file inclusion (dynamic file paths)
     - linters: [ gosec ]
       text: "Potential file inclusion via variable"

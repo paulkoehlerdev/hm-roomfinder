@@ -33,7 +33,7 @@ func createLogger(stdout io.Writer, config loggerConfig) func() (logger *slog.Lo
 		}
 
 		for _, file := range config.File {
-			f, err := os.OpenFile(file.Path, os.O_APPEND|os.O_CREATE, 0666)
+			f, err := os.OpenFile(file.Path, os.O_APPEND|os.O_CREATE, 0600)
 			if err != nil {
 				errors = append(errors, err)
 				continue
