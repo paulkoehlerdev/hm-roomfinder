@@ -110,40 +110,10 @@ func geojsonFeatureToGeodataFeature[T geojson.Coordinates](feature geojson.Featu
 		return geodata.Feature{}, err
 	}
 
-	props, err := geojsonPropertiesToGeodataProperties(feature.Properties)
-	if err != nil {
-		return geodata.Feature{}, err
-	}
-
 	return geodata.Feature{
 		Type:       geodata.FeatureTypeFeature,
 		Geometry:   geom,
-		Properties: props,
-	}, nil
-}
-
-func geojsonPropertiesToGeodataProperties(props map[string]any) (geodata.Feature_Properties, error) {
-	if _, ok := props["id"]; !ok {
-		return geodata.Feature_Properties{}, errors.New("geodata property 'id' is required")
-	}
-
-	intID, ok := props["id"].(int64)
-	if !ok {
-		return geodata.Feature_Properties{}, errors.New("geodata property 'id' has to be of type int64")
-	}
-
-	var name *string
-	if n, ok := props["name"]; ok {
-		if s, ok := n.(string); ok {
-			name = &s
-		} else {
-			return geodata.Feature_Properties{}, errors.New("geodata property 'name' has to be of type string")
-		}
-	}
-
-	return geodata.Feature_Properties{
-		Id:   int(intID),
-		Name: name,
+		Properties: feature.Properties,
 	}, nil
 }
 
@@ -153,7 +123,7 @@ func geojsonGeometryToGeodataGeometry[T geojson.Coordinates](geometry geojson.Ge
 		out := &geodata.Feature_Geometry{}
 		err := out.FromGeometryPoint(geodata.GeometryPoint{
 			Coordinates: v,
-			Type:        geodata.Point,
+			Type:        geodata.GeometryPointTypePoint,
 		})
 		if err != nil {
 			return geodata.Feature_Geometry{}, err
