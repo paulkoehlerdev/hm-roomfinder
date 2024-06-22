@@ -10,15 +10,20 @@ import (
 )
 
 const getBuildings = `-- name: GetBuildings :many
-select id, name, attr, ST_AsGeoJSON(geom)::jsonb as geom
+select id,
+       name,
+       attr,
+       ST_AsGeoJSON(geom)::jsonb              as geom,
+       ST_AsGeoJSON(ST_Envelope(geom))::jsonb as bound
 FROM building
 `
 
 type GetBuildingsRow struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-	Attr []byte `json:"attr"`
-	Geom []byte `json:"geom"`
+	ID    int64  `json:"id"`
+	Name  string `json:"name"`
+	Attr  []byte `json:"attr"`
+	Geom  []byte `json:"geom"`
+	Bound []byte `json:"bound"`
 }
 
 func (q *Queries) GetBuildings(ctx context.Context) ([]GetBuildingsRow, error) {
@@ -35,6 +40,7 @@ func (q *Queries) GetBuildings(ctx context.Context) ([]GetBuildingsRow, error) {
 			&i.Name,
 			&i.Attr,
 			&i.Geom,
+			&i.Bound,
 		); err != nil {
 			return nil, err
 		}
@@ -47,7 +53,12 @@ func (q *Queries) GetBuildings(ctx context.Context) ([]GetBuildingsRow, error) {
 }
 
 const getDoors = `-- name: GetDoors :many
-select door.id, door.room_a, door.room_b, door.attr, ST_AsGeoJSON(door.geom)::jsonb as geom
+select door.id,
+       door.room_a,
+       door.room_b,
+       door.attr,
+       ST_AsGeoJSON(door.geom)::jsonb                             as geom,
+       ST_AsGeoJSON(st_buffer(ST_Envelope(door.geom), 20))::jsonb as bound
 FROM door
          JOIN room as room_a on door.room_a = room_a.id
          JOIN room as room_b on door.room_b = room_b.id
@@ -61,6 +72,7 @@ type GetDoorsRow struct {
 	RoomB int64  `json:"roomB"`
 	Attr  []byte `json:"attr"`
 	Geom  []byte `json:"geom"`
+	Bound []byte `json:"bound"`
 }
 
 func (q *Queries) GetDoors(ctx context.Context, levelID int64) ([]GetDoorsRow, error) {
@@ -78,6 +90,7 @@ func (q *Queries) GetDoors(ctx context.Context, levelID int64) ([]GetDoorsRow, e
 			&i.RoomB,
 			&i.Attr,
 			&i.Geom,
+			&i.Bound,
 		); err != nil {
 			return nil, err
 		}
@@ -90,7 +103,12 @@ func (q *Queries) GetDoors(ctx context.Context, levelID int64) ([]GetDoorsRow, e
 }
 
 const getLevels = `-- name: GetLevels :many
-select id, name, building_id, attr, ST_AsGeoJSON(geom)::jsonb as geom
+select id,
+       name,
+       building_id,
+       attr,
+       ST_AsGeoJSON(geom)::jsonb              as geom,
+       ST_AsGeoJSON(ST_Envelope(geom))::jsonb as bound
 FROM level
 WHERE building_id = $1
 `
@@ -101,6 +119,7 @@ type GetLevelsRow struct {
 	BuildingID int64  `json:"buildingId"`
 	Attr       []byte `json:"attr"`
 	Geom       []byte `json:"geom"`
+	Bound      []byte `json:"bound"`
 }
 
 func (q *Queries) GetLevels(ctx context.Context, buildingID int64) ([]GetLevelsRow, error) {
@@ -118,6 +137,7 @@ func (q *Queries) GetLevels(ctx context.Context, buildingID int64) ([]GetLevelsR
 			&i.BuildingID,
 			&i.Attr,
 			&i.Geom,
+			&i.Bound,
 		); err != nil {
 			return nil, err
 		}
@@ -130,7 +150,12 @@ func (q *Queries) GetLevels(ctx context.Context, buildingID int64) ([]GetLevelsR
 }
 
 const getRooms = `-- name: GetRooms :many
-select id, name, level_id, attr, ST_AsGeoJSON(geom)::jsonb as geom
+select id,
+       name,
+       level_id,
+       attr,
+       ST_AsGeoJSON(geom)::jsonb              as geom,
+       ST_AsGeoJSON(ST_Envelope(geom))::jsonb as bound
 FROM room
 WHERE level_id = $1
 `
@@ -141,6 +166,7 @@ type GetRoomsRow struct {
 	LevelID int64  `json:"levelId"`
 	Attr    []byte `json:"attr"`
 	Geom    []byte `json:"geom"`
+	Bound   []byte `json:"bound"`
 }
 
 func (q *Queries) GetRooms(ctx context.Context, levelID int64) ([]GetRoomsRow, error) {
@@ -158,6 +184,7 @@ func (q *Queries) GetRooms(ctx context.Context, levelID int64) ([]GetRoomsRow, e
 			&i.LevelID,
 			&i.Attr,
 			&i.Geom,
+			&i.Bound,
 		); err != nil {
 			return nil, err
 		}

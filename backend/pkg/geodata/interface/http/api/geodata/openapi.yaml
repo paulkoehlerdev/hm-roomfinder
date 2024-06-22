@@ -101,6 +101,7 @@ components:
       required:
         - type
         - properties
+        - bound
         - geometry
       properties:
         type:
@@ -110,6 +111,8 @@ components:
         properties:
           type: object
           additionalProperties: true
+        bound:
+          "$ref": "#/components/schemas/GeometryPolygon"
         geometry:
           required:
             - type

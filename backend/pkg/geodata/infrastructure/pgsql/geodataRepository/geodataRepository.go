@@ -74,23 +74,23 @@ func (g GeodataRepositoryImpl) GetDoors(ctx context.Context, levelID int64) (geo
 }
 
 type RowModelWithGeom interface {
-	GetGeom() []byte
+	GetGeom() (geom []byte, bound []byte)
 }
 
-func (b GetBuildingsRow) GetGeom() []byte {
-	return b.Geom
+func (b GetBuildingsRow) GetGeom() ([]byte, []byte) {
+	return b.Geom, b.Bound
 }
 
-func (b GetLevelsRow) GetGeom() []byte {
-	return b.Geom
+func (b GetLevelsRow) GetGeom() ([]byte, []byte) {
+	return b.Geom, b.Bound
 }
 
-func (b GetRoomsRow) GetGeom() []byte {
-	return b.Geom
+func (b GetRoomsRow) GetGeom() ([]byte, []byte) {
+	return b.Geom, b.Bound
 }
 
-func (b GetDoorsRow) GetGeom() []byte {
-	return b.Geom
+func (b GetDoorsRow) GetGeom() ([]byte, []byte) {
+	return b.Geom, b.Bound
 }
 
 func decodeRowsIntoFeatureCollection[T RowModelWithGeom, G geojson.Coordinates](res []T) (geojson.FeatureCollection[G], error) {
@@ -118,14 +118,21 @@ func decodeRowsIntoFeatureCollection[T RowModelWithGeom, G geojson.Coordinates](
 		}
 		delete(props, "geom")
 
+		geomBytes, boundBytes := feature.GetGeom()
+
 		var geom geojson.Geometry[G]
-		slog.Debug(string(feature.GetGeom()))
-		if err := json.Unmarshal(feature.GetGeom(), &geom); err != nil {
+		if err := json.Unmarshal(geomBytes, &geom); err != nil {
+			return geojson.FeatureCollection[G]{}, err
+		}
+
+		var bound geojson.GeometryPolygon
+		if err := json.Unmarshal(boundBytes, &bound); err != nil {
 			return geojson.FeatureCollection[G]{}, err
 		}
 
 		features.Features = append(features.Features, geojson.Feature[G]{
 			Geometry:   geom,
+			Bound:      bound,
 			Properties: props,
 		})
 	}

@@ -21,9 +21,10 @@ type FeaturePoint = Feature[CoordinatesPoint]
 
 type Feature[G Coordinates] struct {
 	// Type can be left empty. Will be autofilled on MarshalJSON
-	Type       string         `json:"type"`
-	Geometry   Geometry[G]    `json:"geometry"`
-	Properties map[string]any `json:"properties"`
+	Type       string          `json:"type"`
+	Geometry   Geometry[G]     `json:"geometry"`
+	Bound      GeometryPolygon `json:"bounds,omitempty"`
+	Properties map[string]any  `json:"properties"`
 }
 
 func (f *Feature[G]) MarshalJSON() ([]byte, error) {

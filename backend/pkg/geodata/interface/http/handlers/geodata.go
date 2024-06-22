@@ -111,7 +111,11 @@ func geojsonFeatureToGeodataFeature[T geojson.Coordinates](feature geojson.Featu
 	}
 
 	return geodata.Feature{
-		Type:       geodata.FeatureTypeFeature,
+		Type: geodata.FeatureTypeFeature,
+		Bound: geodata.GeometryPolygon{
+			Coordinates: feature.Bound.Coordinates,
+			Type:        geodata.Polygon,
+		},
 		Geometry:   geom,
 		Properties: feature.Properties,
 	}, nil
