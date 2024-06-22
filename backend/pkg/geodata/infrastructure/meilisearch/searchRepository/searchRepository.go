@@ -16,6 +16,7 @@ var _ searchRepository.SearchRepository = (*SearchRepositoryImpl)(nil)
 type SearchRepositoryImpl struct {
 	logger *slog.Logger
 	index  *meilisearch.Index
+	client *meilisearch.Client
 }
 
 func New(host string, key string, index string, logger *slog.Logger) (*SearchRepositoryImpl, error) {
@@ -130,6 +131,15 @@ func (s SearchRepositoryImpl) Insert(documents []document.Document) error {
 	info, err := s.index.AddDocuments(documentsArr)
 	if err != nil {
 		return err
+	}
+
+	taskInfo, err := s.client.WaitForTask(info.TaskUID)
+	if err != nil {
+		return err
+	}
+
+	if taskInfo.Status != meilisearch.TaskStatusSucceeded {
+		return fmt.Errorf("task status is %s", taskInfo.Status)
 	}
 
 	if bytes, err := json.Marshal(info); err == nil {
