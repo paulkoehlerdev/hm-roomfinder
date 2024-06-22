@@ -4,10 +4,12 @@ package geodataRepository
 
 import (
 	"context"
+	"github.com/IBM/pgxpoolprometheus"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/entities/geojson"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/repositories/geodataRepository"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/libraries/graceful"
+	"github.com/prometheus/client_golang/prometheus"
 	"log/slog"
 )
 
@@ -22,6 +24,9 @@ func NewRepository(dbConnString string, logger *slog.Logger) (*GeodataRepository
 	if err != nil {
 		return nil, graceful.NoOp, err
 	}
+
+	collector := pgxpoolprometheus.NewCollector(conn, map[string]string{"db_name": "geodataRepository"})
+	prometheus.MustRegister(collector)
 
 	cancelFn := func() {
 		conn.Close()

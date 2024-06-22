@@ -5,11 +5,13 @@ package bulkDataRepository
 import (
 	"context"
 	"encoding/json"
+	"github.com/IBM/pgxpoolprometheus"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/entities/document"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/entities/geojson"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/repositories/bulkDataRepository"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/libraries/graceful"
+	"github.com/prometheus/client_golang/prometheus"
 	"log/slog"
 )
 
@@ -26,6 +28,9 @@ func NewRepository(dbConnString string, logger *slog.Logger) (*BulkDataRepositor
 	if err != nil {
 		return nil, graceful.NoOp, err
 	}
+
+	collector := pgxpoolprometheus.NewCollector(conn, map[string]string{"db_name": "bulkDataRepository"})
+	prometheus.MustRegister(collector)
 
 	cancelFn := func() {
 		conn.Close()
