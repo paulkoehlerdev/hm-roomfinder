@@ -67,7 +67,7 @@ func (b BulkDataRepositoryImpl) GetAllDocuments(ctx context.Context) ([]document
 		return nil, err
 	}
 
-	var out []document.Document
+	out := make([]document.Document, 0, len(res))
 	for _, row := range res {
 		if row.DocID == nil {
 			continue
