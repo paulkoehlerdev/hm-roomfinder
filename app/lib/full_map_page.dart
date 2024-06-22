@@ -141,6 +141,12 @@ class FullMapState extends State<FullMap> {
         screenBounds.southwest.longitude < building.southwest.longitude) {
       return true;
     }
+    if (screenBounds.northeast.latitude > building.southwest.latitude &&
+        screenBounds.southwest.latitude < building.northeast.latitude &&
+        screenBounds.northeast.longitude > building.southwest.longitude &&
+        screenBounds.southwest.longitude < building.northeast.longitude) {
+      return true;
+    }
     return false;
   }
   
