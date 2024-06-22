@@ -58,16 +58,22 @@ class _$Feature extends Feature {
   @override
   final BuiltMap<String, JsonObject?> properties;
   @override
+  final GeometryPolygon bound;
+  @override
   final FeatureGeometry geometry;
 
   factory _$Feature([void Function(FeatureBuilder)? updates]) =>
       (new FeatureBuilder()..update(updates))._build();
 
   _$Feature._(
-      {required this.type, required this.properties, required this.geometry})
+      {required this.type,
+      required this.properties,
+      required this.bound,
+      required this.geometry})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(type, r'Feature', 'type');
     BuiltValueNullFieldError.checkNotNull(properties, r'Feature', 'properties');
+    BuiltValueNullFieldError.checkNotNull(bound, r'Feature', 'bound');
     BuiltValueNullFieldError.checkNotNull(geometry, r'Feature', 'geometry');
   }
 
@@ -84,6 +90,7 @@ class _$Feature extends Feature {
     return other is Feature &&
         type == other.type &&
         properties == other.properties &&
+        bound == other.bound &&
         geometry == other.geometry;
   }
 
@@ -92,6 +99,7 @@ class _$Feature extends Feature {
     var _$hash = 0;
     _$hash = $jc(_$hash, type.hashCode);
     _$hash = $jc(_$hash, properties.hashCode);
+    _$hash = $jc(_$hash, bound.hashCode);
     _$hash = $jc(_$hash, geometry.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -102,6 +110,7 @@ class _$Feature extends Feature {
     return (newBuiltValueToStringHelper(r'Feature')
           ..add('type', type)
           ..add('properties', properties)
+          ..add('bound', bound)
           ..add('geometry', geometry))
         .toString();
   }
@@ -120,6 +129,11 @@ class FeatureBuilder implements Builder<Feature, FeatureBuilder> {
   set properties(MapBuilder<String, JsonObject?>? properties) =>
       _$this._properties = properties;
 
+  GeometryPolygonBuilder? _bound;
+  GeometryPolygonBuilder get bound =>
+      _$this._bound ??= new GeometryPolygonBuilder();
+  set bound(GeometryPolygonBuilder? bound) => _$this._bound = bound;
+
   FeatureGeometryBuilder? _geometry;
   FeatureGeometryBuilder get geometry =>
       _$this._geometry ??= new FeatureGeometryBuilder();
@@ -134,6 +148,7 @@ class FeatureBuilder implements Builder<Feature, FeatureBuilder> {
     if ($v != null) {
       _type = $v.type;
       _properties = $v.properties.toBuilder();
+      _bound = $v.bound.toBuilder();
       _geometry = $v.geometry.toBuilder();
       _$v = null;
     }
@@ -162,12 +177,15 @@ class FeatureBuilder implements Builder<Feature, FeatureBuilder> {
               type: BuiltValueNullFieldError.checkNotNull(
                   type, r'Feature', 'type'),
               properties: properties.build(),
+              bound: bound.build(),
               geometry: geometry.build());
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'properties';
         properties.build();
+        _$failedField = 'bound';
+        bound.build();
         _$failedField = 'geometry';
         geometry.build();
       } catch (e) {

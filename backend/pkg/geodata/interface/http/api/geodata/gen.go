@@ -51,6 +51,7 @@ const (
 
 // Feature defines model for Feature.
 type Feature struct {
+	Bound      GeometryPolygon        `json:"bound"`
 	Geometry   Feature_Geometry       `json:"geometry"`
 	Properties map[string]interface{} `json:"properties"`
 	Type       FeatureType            `json:"type"`
@@ -757,24 +758,24 @@ func (sh *strictHandler) GetRoom(w http.ResponseWriter, r *http.Request, params 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

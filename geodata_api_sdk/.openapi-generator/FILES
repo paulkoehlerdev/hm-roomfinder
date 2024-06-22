@@ -1,5 +1,4 @@
 .gitignore
-.openapi-generator-ignore
 README.md
 analysis_options.yaml
 doc/DefaultApi.md
@@ -26,9 +25,3 @@ lib/src/model/geometry_point.dart
 lib/src/model/geometry_polygon.dart
 lib/src/serializers.dart
 pubspec.yaml
-test/default_api_test.dart
-test/feature_collection_test.dart
-test/feature_geometry_test.dart
-test/feature_test.dart
-test/geometry_point_test.dart
-test/geometry_polygon_test.dart

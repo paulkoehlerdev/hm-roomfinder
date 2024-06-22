@@ -5,6 +5,7 @@
 // ignore_for_file: unused_element
 import 'package:geodata_api_sdk/src/model/feature_geometry.dart';
 import 'package:built_collection/built_collection.dart';
+import 'package:geodata_api_sdk/src/model/geometry_polygon.dart';
 import 'package:built_value/json_object.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
@@ -16,6 +17,7 @@ part 'feature.g.dart';
 /// Properties:
 /// * [type]
 /// * [properties]
+/// * [bound]
 /// * [geometry]
 @BuiltValue()
 abstract class Feature implements Built<Feature, FeatureBuilder> {
@@ -25,6 +27,9 @@ abstract class Feature implements Built<Feature, FeatureBuilder> {
 
   @BuiltValueField(wireName: r'properties')
   BuiltMap<String, JsonObject?> get properties;
+
+  @BuiltValueField(wireName: r'bound')
+  GeometryPolygon get bound;
 
   @BuiltValueField(wireName: r'geometry')
   FeatureGeometry get geometry;
@@ -62,6 +67,11 @@ class _$FeatureSerializer implements PrimitiveSerializer<Feature> {
       object.properties,
       specifiedType: const FullType(
           BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
+    );
+    yield r'bound';
+    yield serializers.serialize(
+      object.bound,
+      specifiedType: const FullType(GeometryPolygon),
     );
     yield r'geometry';
     yield serializers.serialize(
@@ -107,6 +117,13 @@ class _$FeatureSerializer implements PrimitiveSerializer<Feature> {
                 BuiltMap, [FullType(String), FullType.nullable(JsonObject)]),
           ) as BuiltMap<String, JsonObject?>;
           result.properties.replace(valueDes);
+          break;
+        case r'bound':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(GeometryPolygon),
+          ) as GeometryPolygon;
+          result.bound.replace(valueDes);
           break;
         case r'geometry':
           final valueDes = serializers.deserialize(
