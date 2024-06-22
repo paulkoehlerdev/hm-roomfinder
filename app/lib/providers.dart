@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 
 class UpdateLevelProvider extends ChangeNotifier {
   int currentLevel = 0;
+  List availableLevels = [];
 
   void updateLevel(int index) {
     currentLevel = index;
+    notifyListeners();
+  }
+
+  void setAvailableLevels(List levels) {
+    availableLevels = levels;
     notifyListeners();
   }
 }
