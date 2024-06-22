@@ -23,6 +23,7 @@ services:
     ports:
       - "127.0.0.1:7700:7700"
 
+
   db:
     image: docker.io/postgis/postgis:12-3.4-alpine
     container_name: hm_roomfinder_geodata_postgis
@@ -41,6 +42,19 @@ services:
       - ../geodata/pgdump/room.sql:/docker-entrypoint-initdb.d/50-room.sql
       - ../geodata/pgdump/mockdata.sql:/docker-entrypoint-initdb.d/60-mockdata.sql
 
+  grafana:
+    image: docker.io/grafana/grafana
+    container_name: hm_roomfinder_grafana
+    environment:
+      GF_SERVER_ROOT_URL: https://grafana.hmroomfinder.gosmroutify.xyz
+      GF_SECURITY_ADMIN_USER: hmroomfinder
+      GF_SECURITY_ADMIN_PASSWORD: 12roomfinder34
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - grafanadata:/var/lib/grafana
+
 volumes:
   pgdata:
   meilidata:
+  grafanadata:
