@@ -13,6 +13,7 @@ services:
       - "127.0.0.1:8080:8080"
     depends_on:
       - db
+      - search_db
 
   search_db:
     image: docker.io/getmeili/meilisearch:v1.8
@@ -53,8 +54,22 @@ services:
       - "127.0.0.1:3000:3000"
     volumes:
       - grafanadata:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: docker.io/prom/prometheus
+    volumes:
+      - ./docker/prometheus:/etc/prometheus
+      - prometheusdata:/prometheus
+    ports:
+      - "127.0.0.1:9000:9090"
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+    depends_on:
+      - app
 
 volumes:
   pgdata:
   meilidata:
   grafanadata:
+  prometheusdata:
