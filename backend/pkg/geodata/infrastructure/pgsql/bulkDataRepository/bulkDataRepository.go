@@ -42,7 +42,7 @@ func NewRepository(dbConnString string, logger *slog.Logger) (*BulkDataRepositor
 }
 
 func (b BulkDataRepositoryImpl) BuildIndex(ctx context.Context) error {
-	tx, err := b.conn.BeginTx(ctx, pgx.TxOptions{})
+	tx, err := b.conn.Begin(ctx)
 	if err != nil {
 		return err
 	}
@@ -54,6 +54,11 @@ func (b BulkDataRepositoryImpl) BuildIndex(ctx context.Context) error {
 		q.CreateDocumentIndexLevel,
 		q.CreateDocumentIndexRoom,
 	)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit(ctx)
 	if err != nil {
 		return err
 	}
