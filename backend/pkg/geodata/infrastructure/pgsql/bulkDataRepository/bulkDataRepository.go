@@ -5,7 +5,7 @@ package bulkDataRepository
 import (
 	"context"
 	"encoding/json"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/entities/document"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/entities/geojson"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/repositories/bulkDataRepository"
@@ -16,28 +16,27 @@ import (
 var _ bulkDataRepository.BulkDataRepository = (*BulkDataRepositoryImpl)(nil)
 
 type BulkDataRepositoryImpl struct {
-	q    *Queries
-	conn *pgx.Conn
+	q      *Queries
+	conn   *pgxpool.Pool
+	logger *slog.Logger
 }
 
 func NewRepository(dbConnString string, logger *slog.Logger) (*BulkDataRepositoryImpl, func(), error) {
-	conn, err := pgx.Connect(context.Background(), dbConnString)
+	conn, err := pgxpool.New(context.Background(), dbConnString)
 	if err != nil {
 		return nil, graceful.NoOp, err
 	}
 
 	cancelFn := func() {
-		err := conn.Close(context.Background())
-		if err != nil {
-			logger.Error("failed to close connection", "error", err)
-		}
+		conn.Close()
 	}
 
 	q := New(conn)
 
 	return &BulkDataRepositoryImpl{
-		q:    q,
-		conn: conn,
+		q:      q,
+		conn:   conn,
+		logger: logger,
 	}, cancelFn, nil
 }
 
