@@ -9,51 +9,6 @@ import 'dart:convert';
 import 'api/geodata.dart';
 import 'api/json_extension.dart';
 
-Map<String, dynamic> geojson = {
-  "type": "FeatureCollection",
-  "name": "example_geojson",
-  "crs": {
-    "type": "name",
-    "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}
-  },
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {"pk": 1, "name": "F0.02", "storey_id": 1},
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [11.568194183434708, 48.142868235160421],
-            [11.568301598509459, 48.142837212756163],
-            [11.568232379769954, 48.142731154911601],
-            [11.568124770805175, 48.142762565095914],
-            [11.568194183434708, 48.142868235160421]
-          ]
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {"pk": 2, "name": "F0.01a", "storey_id": 1},
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [11.568193989544682, 48.142868429050452],
-            [11.568301210729405, 48.142837406646187],
-            [11.568320793622096, 48.142869204610555],
-            [11.568290934557995, 48.142877541881703],
-            [11.568292485678208, 48.142881419682233],
-            [11.568216868567823, 48.142902941475192],
-            [11.568193989544682, 48.142868429050452]
-          ]
-        ]
-      }
-    },
-  ]
-};
-
 List<Map<String, dynamic>> buildings = [];
 
 const fillLayer = FillLayerProperties(
@@ -81,7 +36,7 @@ class FullMapState extends State<FullMap> {
     LatLng oldCameraPose = LatLng(0.0, 0.0);
     double oldZoom = 0.0;
     double zoomThreshold = 15.0;
-    double locationThreshold = 0.1;
+    double locationThreshold = 0.00001;
     bool zoomChanged = false;
     bool locationChanged = false;
     controller!.addListener(() {
@@ -97,10 +52,15 @@ class FullMapState extends State<FullMap> {
           // if zooming in
           if (controller!.cameraPosition!.zoom > zoomThreshold) {
             oldCameraPose = controller!.cameraPosition!.target;
-            loadRooms(controller!.cameraPosition!.target, locationThreshold);
+            loadRooms(controller!.cameraPosition!.target).then((layersInScreen) => {
+              if (layersInScreen) {
+                updateZoomLevelProvider.updateZoomLevel(
+                controller!.cameraPosition!.zoom > zoomThreshold)
+              } else {
+                delRooms()
+              }
+            });
             oldZoom = controller!.cameraPosition!.zoom;
-            updateZoomLevelProvider.updateZoomLevel(
-                controller!.cameraPosition!.zoom > zoomThreshold);
             zoomChanged = false;
             locationChanged = false;
             // if zooming out
@@ -160,10 +120,12 @@ class FullMapState extends State<FullMap> {
     return false;
   }
   
-  void loadRooms (LatLng cameraPosition, double locationThreshold) async {
+  Future<bool> loadRooms (LatLng cameraPosition) async {
+    bool layersInScreen = false;
     mapController!.getVisibleRegion().then((visable) {
       for (Map building in buildings) {
         if (isBuildingIntersect(visable, building['bounds'])) {
+            layersInScreen = true;
             loadLevel(building['id']).then((value) {
               if (value.isNotEmpty) {
                 addLayers(value['id'], GeojsonSourceProperties(data: value['data']));
@@ -172,6 +134,7 @@ class FullMapState extends State<FullMap> {
         }
       }
     });
+    return layersInScreen;
   }
 
   void addLayers(String layerId, GeojsonSourceProperties geojsonSource){
