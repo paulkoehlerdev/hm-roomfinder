@@ -1,4 +1,6 @@
-// Openapi Generator last run: : 2024-06-22T12:54:52.600562
+// Openapi Generator last run: : 2024-06-22T22:09:26.118161
+
+// flutter pub run build_runner build --delete-conflicting-outputs
 
 import 'package:dio/src/response.dart';
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
