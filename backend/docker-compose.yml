@@ -59,6 +59,7 @@ services:
 
   prometheus:
     image: docker.io/prom/prometheus
+    container_name: hm_roomfinder_prometheus
     volumes:
       - ./docker/prometheus:/etc/prometheus
       - prometheusdata:/prometheus
