@@ -62,7 +62,8 @@ class FullMapState extends State<FullMap> {
               } else {
                 levels.clear(),
                 loadedLevels.clear(),
-                delAllLevel()
+                delAllLevel(),
+                updateZoomLevelProvider.updateZoomLevel(false)
               }
             });
             oldZoom = controller!.cameraPosition!.zoom;
