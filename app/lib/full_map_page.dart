@@ -35,27 +35,24 @@ class FullMapState extends State<FullMap> {
   }
 
   void cameraListener(controller, updateZoomLevelProvider) {
-    LatLng oldCameraPose = LatLng(0.0, 0.0);
+    int oldTime = 0;
     double oldZoom = 0.0;
     double zoomThreshold = 15.0;
-    double locationThreshold = 0.00001;
+    int timeThresholdMs = 100;
     bool zoomChanged = false;
-    bool locationChanged = false;
+    bool timeChanged = false;
     controller!.addListener(() {
       if (controller!.cameraPosition != null) {
         zoomChanged = oldZoom > zoomThreshold &&
                 controller!.cameraPosition!.zoom < zoomThreshold ||
             oldZoom < zoomThreshold &&
                 controller!.cameraPosition!.zoom > zoomThreshold;
-        locationChanged =
-            pythLatLong(oldCameraPose, controller!.cameraPosition!.target) >
-                locationThreshold;
-        if (locationChanged || zoomChanged) {
+        timeChanged = DateTime.now().millisecondsSinceEpoch - oldTime > timeThresholdMs;
+        if (timeChanged || zoomChanged) {
           // if zooming in
           if (controller!.cameraPosition!.zoom > zoomThreshold) {
-            oldCameraPose = controller!.cameraPosition!.target;
-            getIntersectingBuildings(controller!.cameraPosition!.target).then((layersInScreenChanged) => {
-              if (layersInScreenChanged) {
+            getIntersectingBuildings(controller!.cameraPosition!.target).then((newLayersInScreen) => {
+              if (newLayersInScreen) {
                 updateZoomLevelProvider.updateZoomLevel(
                 controller!.cameraPosition!.zoom > zoomThreshold),
                 paintLevel(0)
@@ -66,21 +63,18 @@ class FullMapState extends State<FullMap> {
                 updateZoomLevelProvider.updateZoomLevel(false)
               }
             });
-            oldZoom = controller!.cameraPosition!.zoom;
-            zoomChanged = false;
-            locationChanged = false;
             // if zooming out
           } else {
-            oldCameraPose = controller!.cameraPosition!.target;
             levels.clear();
             loadedLevels.clear();
             delAllLevel();
-            oldZoom = controller!.cameraPosition!.zoom;
             updateZoomLevelProvider.updateZoomLevel(
                 controller!.cameraPosition!.zoom > zoomThreshold);
-            zoomChanged = false;
-            locationChanged = false;
           }
+          oldZoom = controller!.cameraPosition!.zoom;
+          zoomChanged = false;
+          timeChanged = false;
+          oldTime = DateTime.now().millisecondsSinceEpoch;
         }
       }
     });
