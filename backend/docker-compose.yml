@@ -15,7 +15,7 @@ services:
       - db
 
   search_db:
-    image: getmeili/meilisearch:v1.8
+    image: docker.io/getmeili/meilisearch:v1.8
     container_name: hm_roomfinder_geodata_meilisearch
     restart: always
     environment:
