@@ -100,7 +100,7 @@ func (s SearchRepositoryImpl) Search(searchTerm string) (id []int64, err error) 
 }
 
 func (s SearchRepositoryImpl) getIDsFromSearchResults(res *meilisearch.SearchResponse) ([]int64, error) {
-	var ids []int64
+	ids := make([]int64, 0, len(res.Hits))
 	for _, hit := range res.Hits {
 		hit, ok := hit.(map[string]interface{})
 		if !ok {
@@ -121,7 +121,7 @@ func (s SearchRepositoryImpl) getIDsFromSearchResults(res *meilisearch.SearchRes
 func (s SearchRepositoryImpl) Insert(documents []document.Document) error {
 	s.logger.Info("Reindexing documents into Meilisearch", "amount", len(documents))
 
-	var documentsArr []map[string]interface{}
+	documentsArr := make([]map[string]interface{}, 0, len(documents))
 	for _, document := range documents {
 		doc := make(map[string]interface{})
 		if err := mapstructure.Decode(document, &doc); err != nil {
