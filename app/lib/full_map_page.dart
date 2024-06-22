@@ -121,17 +121,23 @@ class FullMapState extends State<FullMap> {
   void loadLevel(){
 
   }
-
-  void loadRooms(LatLng cameraPosition, double locationThreshold) {
-    //example geojson
-    String layerId = 'room_example_geojson';
-    String sourceId = 'room_example_geojson';
+  
+  void loadRooms (LatLng cameraPosition, double locationThreshold) async {
+    String layerId = 'room_ex';
+    String sourceId = 'room_ex';
     LatLng geojsonLoc = const LatLng(48.142868235160421, 11.568194183434708);
+    
     GeojsonSourceProperties geojsonSource = GeojsonSourceProperties(
       data: geojson,
     );
     if (pythLatLong(cameraPosition, geojsonLoc) < locationThreshold) {
-      mapController!.getSourceIds().then((sourceIds) {
+      addLayers(layerId, geojsonSource);
+    }
+  }
+
+  void addLayers(String layerId, GeojsonSourceProperties geojsonSource){
+    String sourceId = layerId;
+    mapController!.getSourceIds().then((sourceIds) {
         if (!sourceIds.contains(sourceId)) {
           mapController!.addSource(sourceId, geojsonSource);
         }
@@ -142,7 +148,6 @@ class FullMapState extends State<FullMap> {
               layerId, layerId, fillLayer);
         }
       });
-    }
   }
 
   void delRooms() async {
@@ -182,14 +187,8 @@ class FullMapState extends State<FullMap> {
         buildings.add({'id': feature.properties['id']});
       }
 
-      mapController!.addSource(
-          'building',
-          GeojsonSourceProperties(
-            data: res.data!.toJson(),
-          ));
-      mapController!.addFillLayer(
-          'building', 'building', fillLayer);
-    }
+      addLayers('buildings', GeojsonSourceProperties(data: res.data!.toJson()));
+  }
   }
 
   @override
