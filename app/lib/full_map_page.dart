@@ -1,8 +1,13 @@
 import 'package:app/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
-import 'dart:math';
 import 'package:provider/provider.dart';
+import 'package:geodata_api_sdk/geodata_api_sdk.dart';
+import 'dart:math';
+import 'dart:convert';
+
+import 'api/geodata.dart';
+import 'api/json_extension.dart';
 
 Map<String, dynamic> geojson = {
   "type": "FeatureCollection",
@@ -48,6 +53,8 @@ Map<String, dynamic> geojson = {
     },
   ]
 };
+
+List<Map<String, dynamic>> buildings = [];
 
 const fillLayer = FillLayerProperties(
   fillColor: '#ff0000',
@@ -160,6 +167,31 @@ class FullMapState extends State<FullMap> {
     });
   }
 
+  Future<void> loadBuildingLayer() async {
+    var api = GeodataRepository(api: GeodataApiSdk());
+
+    var res = await api.buildingGet();
+
+    if (res.data != null) {
+      print('BuildingGet: ${jsonEncode(res.data!.toJson())}');
+    
+      //print(res.data!.features.first.properties['id']);
+
+      for (var feature in res.data!.features) {
+        print(feature.properties['id']);
+        buildings.add({'id': feature.properties['id']});
+      }
+
+      mapController!.addSource(
+          'building',
+          GeojsonSourceProperties(
+            data: res.data!.toJson(),
+          ));
+      mapController!.addFillLayer(
+          'building', 'building', fillLayer);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const styleUrl =
@@ -195,6 +227,7 @@ class FullMapState extends State<FullMap> {
                 ? controller.animateCamera(CameraUpdate.newCameraPosition(
                     CameraPosition(target: value, zoom: 17.0)))
                 : null);
+            loadBuildingLayer();
           },
         ));
   }
