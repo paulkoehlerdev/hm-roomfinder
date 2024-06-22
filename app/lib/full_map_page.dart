@@ -54,13 +54,14 @@ class FullMapState extends State<FullMap> {
           // if zooming in
           if (controller!.cameraPosition!.zoom > zoomThreshold) {
             oldCameraPose = controller!.cameraPosition!.target;
-            getIntersectingBuildings(controller!.cameraPosition!.target).then((layersInScreen) => {
-              print(layersInScreen),
-              if (layersInScreen) {
+            getIntersectingBuildings(controller!.cameraPosition!.target).then((layersInScreenChanged) => {
+              if (layersInScreenChanged) {
                 updateZoomLevelProvider.updateZoomLevel(
                 controller!.cameraPosition!.zoom > zoomThreshold),
-                addLayers(levels[0]['layer_id'], GeojsonSourceProperties(data: levels[0]['data']))
+                paintLevel(0)
               } else {
+                levels.clear(),
+                loadedLevels.clear(),
                 delAllLevel()
               }
             });
@@ -70,6 +71,8 @@ class FullMapState extends State<FullMap> {
             // if zooming out
           } else {
             oldCameraPose = controller!.cameraPosition!.target;
+            levels.clear();
+            loadedLevels.clear();
             delAllLevel();
             oldZoom = controller!.cameraPosition!.zoom;
             updateZoomLevelProvider.updateZoomLevel(
@@ -80,6 +83,15 @@ class FullMapState extends State<FullMap> {
         }
       }
     });
+  }
+
+  paintLevel(int level) async{
+    await delAllLevel();
+    for (Map level in levels) {
+      if (level['level'] == level) {
+        addLayers(level['layer_id'], GeojsonSourceProperties(data: level['data']));
+      }
+    }
   }
 
   Future<void> loadLevel(id) async{
@@ -128,17 +140,17 @@ class FullMapState extends State<FullMap> {
   }
   
   Future<bool> getIntersectingBuildings (LatLng cameraPosition) async {
-    bool layersInScreen = false;
+    bool layersInScreenChanged = false;
     LatLngBounds visable =  await mapController!.getVisibleRegion();
     for (Map building in buildings) {
       if (!loadedLevels.contains(building['id'])){ // if the building is not already loaded
         if (isBuildingIntersect(visable, building['bounds'])) { // if the building is in the screen
-            layersInScreen = true;
+            layersInScreenChanged = true;
             await loadLevel(building['id']);
         }
       }
     }
-    return layersInScreen;
+    return layersInScreenChanged;
   }
 
   void addLayers(String layerId, GeojsonSourceProperties geojsonSource){
@@ -156,9 +168,7 @@ class FullMapState extends State<FullMap> {
       });
   }
 
-  void delAllLevel() async {
-    levels.clear();
-    loadedLevels.clear();
+  Future<void> delAllLevel() async {
     mapController!.getLayerIds().then((layerIds) {
       //example geojson
       for (String layer in layerIds) {
