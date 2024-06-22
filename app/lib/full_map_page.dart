@@ -43,33 +43,40 @@ class FullMapState extends State<FullMap> {
     bool timeChanged = false;
     controller!.addListener(() {
       if (controller!.cameraPosition != null) {
+        // defining if the zoom level has changed
         zoomChanged = oldZoom > zoomThreshold &&
                 controller!.cameraPosition!.zoom < zoomThreshold ||
             oldZoom < zoomThreshold &&
                 controller!.cameraPosition!.zoom > zoomThreshold;
-        timeChanged = DateTime.now().millisecondsSinceEpoch - oldTime > timeThresholdMs;
+        // defining if the time has changed
+        timeChanged =
+            DateTime.now().millisecondsSinceEpoch - oldTime > timeThresholdMs;
         if (timeChanged || zoomChanged) {
-          // if zooming in
+          // if zooming in/ zoomed in
           if (controller!.cameraPosition!.zoom > zoomThreshold) {
-            getIntersectingBuildings(controller!.cameraPosition!.target).then((newLayersInScreen) => {
-              if (newLayersInScreen['new']!) {
-                updateZoomLevelProvider.updateZoomLevel(
-                controller!.cameraPosition!.zoom > zoomThreshold),
-                paintLevel(0)
-              } else if (!newLayersInScreen['total']!){
-                levels.clear(),
-                loadedLevels.clear(),
-                delAllLevel(),
-                updateZoomLevelProvider.updateZoomLevel(false)
-              }
-            });
+            getIntersectingBuildings(controller!.cameraPosition!.target)
+                .then((newLayersInScreen) => {
+                      // if new layers are in the screen
+                      if (newLayersInScreen['new']!)
+                        {
+                          updateZoomLevelProvider.updateZoomLevel(true),
+                          paintLevel(0)
+                        }
+                      else if (!newLayersInScreen['total']!)
+                        {
+                          // if no layers are in the screen
+                          levels.clear(),
+                          loadedLevels.clear(),
+                          delAllLevel(),
+                          updateZoomLevelProvider.updateZoomLevel(false)
+                        }
+                    });
             // if zooming out
           } else {
             levels.clear();
             loadedLevels.clear();
             delAllLevel();
-            updateZoomLevelProvider.updateZoomLevel(
-                controller!.cameraPosition!.zoom > zoomThreshold);
+            updateZoomLevelProvider.updateZoomLevel(false);
           }
           oldZoom = controller!.cameraPosition!.zoom;
           zoomChanged = false;
@@ -80,17 +87,18 @@ class FullMapState extends State<FullMap> {
     });
   }
 
-  paintLevel(int level) async{
+  paintLevel(int level) async {
     print('level: $level painted');
     await delAllLevel();
     for (Map level in levels) {
       if (level['level'] == level) {
-        addLayers(level['layer_id'], GeojsonSourceProperties(data: level['data']));
+        addLayers(
+            level['layer_id'], GeojsonSourceProperties(data: level['data']));
       }
     }
   }
 
-  Future<void> loadLevel(id) async{
+  Future<void> loadLevel(id) async {
     var api = GeodataRepository(api: GeodataApiSdk());
     var res = await api.levelGet(id);
 
@@ -99,10 +107,16 @@ class FullMapState extends State<FullMap> {
       res.data!.features.forEach((element) {
         num levelId = element.properties['id']!.asNum;
         loadedLevels.add(id);
-        levels.add({'level': levelId, 'building_id': id, 'layer_id': 'level_${id}_$levelId', 'data': element.toJson()});
+        levels.add({
+          'level': levelId,
+          'building_id': id,
+          'layer_id': 'level_${id}_$levelId',
+          'data': element.toJson()
+        });
         availableLevels.add(levelId.toString());
       });
-      Provider.of<UpdateLevelProvider>(context, listen: false).setAvailableLevels(availableLevels.toList());
+      Provider.of<UpdateLevelProvider>(context, listen: false)
+          .setAvailableLevels(availableLevels.toList());
     }
   }
 
@@ -143,17 +157,20 @@ class FullMapState extends State<FullMap> {
     }
     return false;
   }
-  
-  Future<Map<String,bool>> getIntersectingBuildings (LatLng cameraPosition) async {
+
+  Future<Map<String, bool>> getIntersectingBuildings(
+      LatLng cameraPosition) async {
     bool newLayersInScreen = false;
     bool layersInScreen = false;
-    LatLngBounds visable =  await mapController!.getVisibleRegion();
+    LatLngBounds visable = await mapController!.getVisibleRegion();
     for (Map building in buildings) {
-      if (isBuildingIntersect(visable, building['bounds'])) { // if the building is in the screen
-        if (!loadedLevels.contains(building['id'])){ // if the building is not already loaded
-            newLayersInScreen = true;
-            layersInScreen = true;
-            await loadLevel(building['id']);
+      if (isBuildingIntersect(visable, building['bounds'])) {
+        // if the building is in the screen
+        if (!loadedLevels.contains(building['id'])) {
+          // if the building is not already loaded
+          newLayersInScreen = true;
+          layersInScreen = true;
+          await loadLevel(building['id']);
         } else {
           layersInScreen = true;
         }
@@ -162,19 +179,18 @@ class FullMapState extends State<FullMap> {
     return {'new': newLayersInScreen, 'total': layersInScreen};
   }
 
-  void addLayers(String layerId, GeojsonSourceProperties geojsonSource){
+  void addLayers(String layerId, GeojsonSourceProperties geojsonSource) {
     String sourceId = layerId;
     mapController!.getSourceIds().then((sourceIds) {
-        if (!sourceIds.contains(sourceId)) {
-          mapController!.addSource(sourceId, geojsonSource);
-        }
-      });
-      mapController!.getLayerIds().then((layerIds) {
-        if (!layerIds.contains(layerId)) {
-          mapController!.addFillLayer(
-              layerId, layerId, fillLayer);
-        }
-      });
+      if (!sourceIds.contains(sourceId)) {
+        mapController!.addSource(sourceId, geojsonSource);
+      }
+    });
+    mapController!.getLayerIds().then((layerIds) {
+      if (!layerIds.contains(layerId)) {
+        mapController!.addFillLayer(layerId, layerId, fillLayer);
+      }
+    });
   }
 
   Future<void> delAllLevel() async {
@@ -207,14 +223,17 @@ class FullMapState extends State<FullMap> {
     if (res.data != null) {
       // adding the buildings and bounds to the list
       for (var feature in res.data!.features) {
-        buildings.add({'id': feature.properties['id']!.asNum, 'bounds': feature.bound.coordinates.asList()});
+        buildings.add({
+          'id': feature.properties['id']!.asNum,
+          'bounds': feature.bound.coordinates.asList()
+        });
       }
       // displaying the buildings
       addLayers('buildings', GeojsonSourceProperties(data: res.data!.toJson()));
-  }
+    }
   }
 
-  void AutoPaint(UpdateLevelProvider updateLevelProvider){
+  void AutoPaint(UpdateLevelProvider updateLevelProvider) {
     updateLevelProvider.addListener(() {
       paintLevel(updateLevelProvider.currentLevel);
     });
@@ -229,38 +248,38 @@ class FullMapState extends State<FullMap> {
         Provider.of<ZoomLevelProvider>(context, listen: false);
 
     return Consumer<UpdateLevelProvider>(
-      builder: (context, updateLevelProvider, child) {
-        return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            mapController!.requestMyLocationLatLng().then((value) => value !=
-                    null
-                ? mapController!.animateCamera(CameraUpdate.newCameraPosition(
-                    CameraPosition(target: value, zoom: 17.0)))
-                : null);
-          },
-          child: const Icon(Icons.my_location),
-        ),
-        body: MapLibreMap(
-          tiltGesturesEnabled: false,
-          myLocationEnabled: true,
-          //myLocationTrackingMode: MyLocationTrackingMode.trackingCompass,
-          myLocationRenderMode: MyLocationRenderMode.compass,
-          styleString: styleUrl,
-          initialCameraPosition: const CameraPosition(
-              bearing: 0.0, target: LatLng(51.8, 9.7), tilt: 0.0, zoom: 5.5),
-          trackCameraPosition: true,
-          onMapCreated: (controller) {
-            mapController = controller;
-            cameraListener(controller, updateZoomLevelProvider);
-            controller.requestMyLocationLatLng().then((value) => value != null
-                ? controller.animateCamera(CameraUpdate.newCameraPosition(
-                    CameraPosition(target: value, zoom: 17.0)))
-                : null);
-            loadBuildingLayer();
-            AutoPaint(updateLevelProvider);
-          },
-        ));
+        builder: (context, updateLevelProvider, child) {
+      return Scaffold(
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              mapController!.requestMyLocationLatLng().then((value) => value !=
+                      null
+                  ? mapController!.animateCamera(CameraUpdate.newCameraPosition(
+                      CameraPosition(target: value, zoom: 17.0)))
+                  : null);
+            },
+            child: const Icon(Icons.my_location),
+          ),
+          body: MapLibreMap(
+            tiltGesturesEnabled: false,
+            myLocationEnabled: true,
+            //myLocationTrackingMode: MyLocationTrackingMode.trackingCompass,
+            myLocationRenderMode: MyLocationRenderMode.compass,
+            styleString: styleUrl,
+            initialCameraPosition: const CameraPosition(
+                bearing: 0.0, target: LatLng(51.8, 9.7), tilt: 0.0, zoom: 5.5),
+            trackCameraPosition: true,
+            onMapCreated: (controller) {
+              mapController = controller;
+              cameraListener(controller, updateZoomLevelProvider);
+              controller.requestMyLocationLatLng().then((value) => value != null
+                  ? controller.animateCamera(CameraUpdate.newCameraPosition(
+                      CameraPosition(target: value, zoom: 17.0)))
+                  : null);
+              loadBuildingLayer();
+              AutoPaint(updateLevelProvider);
+            },
+          ));
+    });
   }
-  );}
 }
