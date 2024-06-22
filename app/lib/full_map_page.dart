@@ -55,9 +55,11 @@ class FullMapState extends State<FullMap> {
           if (controller!.cameraPosition!.zoom > zoomThreshold) {
             oldCameraPose = controller!.cameraPosition!.target;
             getIntersectingBuildings(controller!.cameraPosition!.target).then((layersInScreen) => {
+              print(layersInScreen),
               if (layersInScreen) {
                 updateZoomLevelProvider.updateZoomLevel(
-                controller!.cameraPosition!.zoom > zoomThreshold)
+                controller!.cameraPosition!.zoom > zoomThreshold),
+                addLayers(levels[0]['layer_id'], GeojsonSourceProperties(data: levels[0]['data']))
               } else {
                 delAllLevel()
               }
@@ -80,7 +82,7 @@ class FullMapState extends State<FullMap> {
     });
   }
 
-  Future<bool> loadLevel(id) async{
+  Future<void> loadLevel(id) async{
     var api = GeodataRepository(api: GeodataApiSdk());
     var res = await api.levelGet(id);
 
@@ -90,9 +92,7 @@ class FullMapState extends State<FullMap> {
         loadedLevels.add(id);
         levels.add({'level': levelId, 'building_id': id, 'layer_id': 'level_${id}_$levelId', 'data': element.toJson()});
       });
-      return true;
     }
-    return false;
   }
 
   bool isBuildingIntersect(LatLngBounds screenBounds, List buildingBounds) {
@@ -129,20 +129,15 @@ class FullMapState extends State<FullMap> {
   
   Future<bool> getIntersectingBuildings (LatLng cameraPosition) async {
     bool layersInScreen = false;
-    mapController!.getVisibleRegion().then((visable) {
-      for (Map building in buildings) {
-        if (!loadedLevels.contains(building['id'])){ // if the building is not already loaded
-          if (isBuildingIntersect(visable, building['bounds'])) { // if the building is in the screen
-              layersInScreen = true;
-              loadLevel(building['id']).then((value) {
-                if (value) {
-                  addLayers(levels[0]['id'], GeojsonSourceProperties(data: levels[0]['data']));
-                }
-              });
-          }
+    LatLngBounds visable =  await mapController!.getVisibleRegion();
+    for (Map building in buildings) {
+      if (!loadedLevels.contains(building['id'])){ // if the building is not already loaded
+        if (isBuildingIntersect(visable, building['bounds'])) { // if the building is in the screen
+            layersInScreen = true;
+            await loadLevel(building['id']);
         }
       }
-    });
+    }
     return layersInScreen;
   }
 
