@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.26.0
 
-package geodataRepository
+package bulkDataRepository
 
 type Building struct {
 	ID    int64       `json:"id"`

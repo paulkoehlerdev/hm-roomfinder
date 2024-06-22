@@ -14,6 +14,15 @@ services:
     depends_on:
       - db
 
+  search_db:
+    image: getmeili/meilisearch:v1.8
+    container_name: hm_roomfinder_geodata_meilisearch
+    restart: always
+    environment:
+      MEILI_MASTER_KEY: 'hmroomdfindermasterkey'
+    ports:
+      - "127.0.0.1:7700:7700"
+
   db:
     image: docker.io/postgis/postgis:12-3.4-alpine
     container_name: hm_roomfinder_geodata_postgis
@@ -26,7 +35,7 @@ services:
       - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./pkg/geodata/infrastructure/pgsql/geodataRepository/schema.sql:/docker-entrypoint-initdb.d/20-schema.sql
+      - ./pkg/geodata/infrastructure/pgsql/schema.sql:/docker-entrypoint-initdb.d/20-schema.sql
       - ../geodata/pgdump/building.sql:/docker-entrypoint-initdb.d/30-building.sql
       - ../geodata/pgdump/level.sql:/docker-entrypoint-initdb.d/40-level.sql
       - ../geodata/pgdump/room.sql:/docker-entrypoint-initdb.d/50-room.sql
@@ -34,3 +43,4 @@ services:
 
 volumes:
   pgdata:
+  meilidata:
