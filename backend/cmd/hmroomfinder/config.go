@@ -11,6 +11,7 @@ type config struct {
 	Logger         loggerConfig         `hcl:"logger,block"`
 	Database       databaseConfig       `hcl:"database,block"`
 	SearchDatabase searchDatabaseConfig `hcl:"search_database,block"`
+	Metrics        metricsConfig        `hcl:"metrics,block"`
 }
 
 func (c *config) String() string {
@@ -49,6 +50,10 @@ type searchDatabaseConfig struct {
 	Key      string `hcl:"key"`
 	Index    string `hcl:"index"`
 	ResLimit int64  `hcl:"res_limit"`
+}
+
+type metricsConfig struct {
+	Bind string `hcl:"bind"`
 }
 
 func (d databaseConfig) ConnString() string {

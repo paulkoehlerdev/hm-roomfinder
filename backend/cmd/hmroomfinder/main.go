@@ -79,8 +79,10 @@ func run(ctx context.Context, args []string, stdout io.Writer) error {
 	application := application.New(geodataService, searchService)
 
 	serverShutdown := http.Run(application, config.Server.Bind, logger)
-
 	gful.Add(serverShutdown)
+
+	metricShutdown := http.RunMetrics(config.Metrics.Bind, logger)
+	gful.Add(metricShutdown)
 
 	<-ctx.Done()
 
