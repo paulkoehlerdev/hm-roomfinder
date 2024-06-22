@@ -11,6 +11,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -20,6 +21,12 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/oapi-codegen/runtime"
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
+)
+
+// Defines values for FeatureGeometryType.
+const (
+	FeatureGeometryTypePoint   FeatureGeometryType = "Point"
+	FeatureGeometryTypePolygon FeatureGeometryType = "Polygon"
 )
 
 // Defines values for FeatureType.
@@ -34,7 +41,7 @@ const (
 
 // Defines values for GeometryPointType.
 const (
-	Point GeometryPointType = "Point"
+	GeometryPointTypePoint GeometryPointType = "Point"
 )
 
 // Defines values for GeometryPolygonType.
@@ -44,24 +51,18 @@ const (
 
 // Feature defines model for Feature.
 type Feature struct {
-	Geometry   Feature_Geometry   `json:"geometry"`
-	Properties Feature_Properties `json:"properties"`
-	Type       FeatureType        `json:"type"`
+	Geometry   Feature_Geometry       `json:"geometry"`
+	Properties map[string]interface{} `json:"properties"`
+	Type       FeatureType            `json:"type"`
 }
+
+// FeatureGeometryType defines model for Feature.Geometry.Type.
+type FeatureGeometryType string
 
 // Feature_Geometry defines model for Feature.Geometry.
 type Feature_Geometry struct {
+	Type  FeatureGeometryType `json:"type"`
 	union json.RawMessage
-}
-
-// Feature_Properties defines model for Feature.Properties.
-type Feature_Properties struct {
-	// Id ID of Feature
-	Id int `json:"id"`
-
-	// Name Name of Feature
-	Name                 *string                `json:"name,omitempty"`
-	AdditionalProperties map[string]interface{} `json:"-"`
 }
 
 // FeatureType defines model for Feature.Type.
@@ -112,87 +113,6 @@ type GetRoomParams struct {
 	LevelId int `form:"level_id" json:"level_id"`
 }
 
-// Getter for additional properties for Feature_Properties. Returns the specified
-// element and whether it was found
-func (a Feature_Properties) Get(fieldName string) (value interface{}, found bool) {
-	if a.AdditionalProperties != nil {
-		value, found = a.AdditionalProperties[fieldName]
-	}
-	return
-}
-
-// Setter for additional properties for Feature_Properties
-func (a *Feature_Properties) Set(fieldName string, value interface{}) {
-	if a.AdditionalProperties == nil {
-		a.AdditionalProperties = make(map[string]interface{})
-	}
-	a.AdditionalProperties[fieldName] = value
-}
-
-// Override default JSON handling for Feature_Properties to handle AdditionalProperties
-func (a *Feature_Properties) UnmarshalJSON(b []byte) error {
-	object := make(map[string]json.RawMessage)
-	err := json.Unmarshal(b, &object)
-	if err != nil {
-		return err
-	}
-
-	if raw, found := object["id"]; found {
-		err = json.Unmarshal(raw, &a.Id)
-		if err != nil {
-			return fmt.Errorf("error reading 'id': %w", err)
-		}
-		delete(object, "id")
-	}
-
-	if raw, found := object["name"]; found {
-		err = json.Unmarshal(raw, &a.Name)
-		if err != nil {
-			return fmt.Errorf("error reading 'name': %w", err)
-		}
-		delete(object, "name")
-	}
-
-	if len(object) != 0 {
-		a.AdditionalProperties = make(map[string]interface{})
-		for fieldName, fieldBuf := range object {
-			var fieldVal interface{}
-			err := json.Unmarshal(fieldBuf, &fieldVal)
-			if err != nil {
-				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
-			}
-			a.AdditionalProperties[fieldName] = fieldVal
-		}
-	}
-	return nil
-}
-
-// Override default JSON handling for Feature_Properties to handle AdditionalProperties
-func (a Feature_Properties) MarshalJSON() ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-
-	object["id"], err = json.Marshal(a.Id)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling 'id': %w", err)
-	}
-
-	if a.Name != nil {
-		object["name"], err = json.Marshal(a.Name)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'name': %w", err)
-		}
-	}
-
-	for fieldName, field := range a.AdditionalProperties {
-		object[fieldName], err = json.Marshal(field)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
-		}
-	}
-	return json.Marshal(object)
-}
-
 // AsGeometryPolygon returns the union data inside the Feature_Geometry as a GeometryPolygon
 func (t Feature_Geometry) AsGeometryPolygon() (GeometryPolygon, error) {
 	var body GeometryPolygon
@@ -202,6 +122,8 @@ func (t Feature_Geometry) AsGeometryPolygon() (GeometryPolygon, error) {
 
 // FromGeometryPolygon overwrites any union data inside the Feature_Geometry as the provided GeometryPolygon
 func (t *Feature_Geometry) FromGeometryPolygon(v GeometryPolygon) error {
+	t.Type = "Polygon"
+
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -209,6 +131,8 @@ func (t *Feature_Geometry) FromGeometryPolygon(v GeometryPolygon) error {
 
 // MergeGeometryPolygon performs a merge with any union data inside the Feature_Geometry, using the provided GeometryPolygon
 func (t *Feature_Geometry) MergeGeometryPolygon(v GeometryPolygon) error {
+	t.Type = "Polygon"
+
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -228,6 +152,8 @@ func (t Feature_Geometry) AsGeometryPoint() (GeometryPoint, error) {
 
 // FromGeometryPoint overwrites any union data inside the Feature_Geometry as the provided GeometryPoint
 func (t *Feature_Geometry) FromGeometryPoint(v GeometryPoint) error {
+	t.Type = "Point"
+
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -235,6 +161,8 @@ func (t *Feature_Geometry) FromGeometryPoint(v GeometryPoint) error {
 
 // MergeGeometryPoint performs a merge with any union data inside the Feature_Geometry, using the provided GeometryPoint
 func (t *Feature_Geometry) MergeGeometryPoint(v GeometryPoint) error {
+	t.Type = "Point"
+
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -245,13 +173,69 @@ func (t *Feature_Geometry) MergeGeometryPoint(v GeometryPoint) error {
 	return err
 }
 
+func (t Feature_Geometry) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"type"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t Feature_Geometry) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "Point":
+		return t.AsGeometryPoint()
+	case "Polygon":
+		return t.AsGeometryPolygon()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
 func (t Feature_Geometry) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	object["type"], err = json.Marshal(t.Type)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'type': %w", err)
+	}
+
+	b, err = json.Marshal(object)
 	return b, err
 }
 
 func (t *Feature_Geometry) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["type"]; found {
+		err = json.Unmarshal(raw, &t.Type)
+		if err != nil {
+			return fmt.Errorf("error reading 'type': %w", err)
+		}
+	}
+
 	return err
 }
 
@@ -773,26 +757,24 @@ func (sh *strictHandler) GetRoom(w http.ResponseWriter, r *http.Request, params 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+RXzW7cNhd9FeF+367MiKIk6mfX1IljNGkMpztjUNDSnTFTiVQoysjUmGfppm+SFyso",
-	"aWY0P4gncLoouiPFw8N7Di/Jq0codN1ohcq2kD+CwbbRqsW+81KUN/ipw9ZGlLoPJbaFkY2VWkHuhr1x",
-	"HNYEXqOwncGfdFVh4SBsmFRoZVFZ1xRNU8lCuEF/ifqHj60jeoS2uMdauNb/DS4gh//5u7D8YbT1jxaA",
-	"9XpNDoL60BUFtu2iq7yNFnCokcStMfK4ZmN0g8bKQe8SdY3WrFxbK3y/gPz26yFdjjOudbVauoDIuXip",
-	"LKzna3IQgihL6ZSI6nry3ZoOCeBnUTeV698+wl0nq1Kq5W+yhJySXV+JGiGH10BgIYquGhhuA8JIOicw",
-	"DLuthBwu8e7LX12J3s/CVK014sufCASw392RcG9sTcCKpYt07aQeBlHhA1b7nTGcV5fwDVON1vVeeyOK",
-	"zmgyJZof+ucmHebp1YWnF95m1wnYVePIpLK4ROM07UyZzvtF1HhyZmuNVMs+rQx+6qTBEvJbt/Z8i9F3",
-	"H7Hoz8Xw4RFQdbWDbejmT/H1o3sCyS5FT610fECOUnwxQAavLNbtmYduJwSEMWL1FWGT5c+VuI3qlKr9",
-	"M3OkqNDalFIJO3THQwL57W0QzGKe8jhkjPEsoFlConQWRGFCoyilnIaMzedk58NCm1pYyKHU3V012XDV",
-	"1XdDptTi89UAZwRqqXadp9wZwj/Xkamqr5syXDzfYMt5vpARRjmLI0aDLAsHFEsYjaKQBlmcRhuYYwmC",
-	"JOBZxEdYFIRxmiYhoztUxBjLeBqHaRSNsDiIgoAGnAcTHAt4EIeMR5yNsJQmSZhEYRonO1jIkiAOeZzR",
-	"NB0lUMYojTKWBfEutpjzNE14EmUjXch4HPIsTFOebJWmWUBTypMsSUYNIQ/TMMp4yKNwC3sqn6YJddz4",
-	"B1Lsqf40BYdk+T5J6CZJtdDHF+ebd96N1vVCqhKNd4m6FFZ4L0XxO6rSe9+g+vH6ymsbLORiLAeAQCUL",
-	"dK91/jjex/Du6lcg0JkKcri3tmlz39cNqlZ3psCZNkt/nNT6tbQvxs6suW96+dK6jIc3714chwMEHtC0",
-	"Q8DBjM6om+LYRSMhh7D/RKAR9r7fOX/zYg2Vgj2WfYO2M6r1dGcrqbD1hCo955DbcqmVt9DGE1XlbZjc",
-	"he7ObD96VfYPst28u0D2i7Gxmjp1V29x/skarC9/uroWrrJxS3gvtwG4Mb/U2jxflWM5qejC0TsnjajR",
-	"ohkKGOnIP3VoVrB5gHdFwDQdh+JnVyIePt+uCPheThGIzpm8Xxgf+3vRW9F720t6vrk9zUl33/YLnGXv",
-	"tOb6lzv8dvCjt9hViM932LGcNNjdHf+t9L3pregv+BbNw0byvrHXRpddv7T3oQcdXdWikbP72myv3tlS",
-	"t7XRnZWL1ezz6g//IfD7P6Z94re6EJV3gQ/eK/UgjVa1+3uckue+XznQvW5tntKUDkzz9d8BAAD//2YP",
-	"LmzODgAA",
+	"H4sIAAAAAAAC/+RWTW/jNhD9KwLbW7UWRUnUx61p2myApBtkewuMgpHGNrciqZCUETfwfy9IyV+xkbhI",
+	"e2lvFPn4Zt7jiJwXVCvRKQnSGlS9IA2mU9KA/7hgzT089WBsirGbaMDUmneWK4kqtxyM62gdol+A2V7D",
+	"T6ptoXYQMmyqlbQgrRuyrmt5zdxiNAf1wzfjiF6QqRcgmBt9r2GGKvRdtEsrGlZNdBQArdfr8FVSX/u6",
+	"BmNmfRtstCCHGklcjJHHDTutOtCWD3rnoARYvfJSuWMVXDKrtJsQrOu4nLvhneJOz+ksr0aSARSiO9Wu",
+	"5j61d+ADbB1uklr9ygSgCtlVB25aSfgyQ9XD2yYd852Ld+mup+ErT3z06gWB7AWqHtBrWdNwhCBjtfPH",
+	"ma3hqecaGrfBr07Xr3lZ03B3ZKy925u3uoctoXr8BrUvrddJbE7wvOAHocPdKU9PRDqusaMqmQ0QP+YW",
+	"hDmzbndCENOard4Qthf+XInbrE6pOjzkI0W1UrpxlT58wjMTXQuoeniI40lGC5olhBBaxrjMw7SYxGmS",
+	"4zQtMMUJIdNpuPNhprRg7t9oVP/YusTGZGQvHkG7ZAR7vh7gJESCy93He+4M6Z/ryL6qt00Zf9DzbTnP",
+	"l3CEYUqylOC4LJMBRXKC0zTBcZkV6QbmWOI4j2mZ0hGWxklWFHlC8A6VEkJKWmRJkaYjLIvTOMYxpfEe",
+	"jsQ0zhJCU0pGWIHzPMnTpMjyHSwheZwlNCtxUYwSMCEYpyUp42yXW0ZpUeQ0T8uRLiE0S2iZFAXNt0qL",
+	"MsYFpnmZ56OGhCZFkpY0oWmyhb1XT/sFdTz4F0rsve/9Evw71957Reg2cTlTx2/r59vgXikx47IBHVyB",
+	"aphlwQWr/wDZBF86kD/eXQemg5rPxhcVhajlNbgHr3pBcng8bq9/QyHqdYsqtLC2M1UUqQ6kUb2uYaL0",
+	"PBo3mUhw+2n8mHSLzsvn1lU8+nz76TgdFKIlaDMkHE/wBPtnqgPJOo4qlPipEHXMLvzJRY89b5vxEZ2D",
+	"PZZ9D7bX0gSqty2XYAImm8A55I6cKxnMlA5Y2wYbJnehu3/Wr143qEJXYC82YcLDfmZsSE7d1VtcdLKN",
+	"8R1ELwRzzYELEVxsE3BrUaOGLuFjqhzLSUWXjt45qZkAC9r4PoA78qce9AqFmwNvYQnt77xB++U4PKu7",
+	"LmssQy4tzN0f4579f8qpEKXnbD7sLY/9vfRWeG+9pI+b62lOunvjA5xl76bu/gMO3wx+eIu1UuLjDjuW",
+	"kwa7u+P/Vb733gp/wRvQy43kQ2PvtGp6Hzr46kFHVzXr+GQh9PbqncyVEVr1ls9Wk+fVn9EyjnyLf0h8",
+	"o2rWBpewDH6WS66VFOCb9h15FUWtAy2UsVWBCzwwTdd/BQAA//8A9Oh0EQ4AAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
