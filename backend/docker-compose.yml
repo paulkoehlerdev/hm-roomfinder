@@ -30,6 +30,7 @@ services:
       - ../geodata/pgdump/building.sql:/docker-entrypoint-initdb.d/30-building.sql
       - ../geodata/pgdump/level.sql:/docker-entrypoint-initdb.d/40-level.sql
       - ../geodata/pgdump/room.sql:/docker-entrypoint-initdb.d/50-room.sql
+      - ../geodata/pgdump/mockdata.sql:/docker-entrypoint-initdb.d/60-mockdata.sql
 
 volumes:
   pgdata:
