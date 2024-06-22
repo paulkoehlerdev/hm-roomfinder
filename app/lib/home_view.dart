@@ -10,19 +10,25 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ZoomLevelProvider>(
-        create: (context) => ZoomLevelProvider(),
-        child: Builder(builder: (BuildContext context) {
-          final zoomLevelProvider = Provider.of<ZoomLevelProvider>(context);
-          return Material(
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                FullMap(),
-                zoomLevelProvider.zoomLevel ? const LevelSelector() : Container(),
-              ],
-            ),
-          );
-        }));
+    return MultiProvider(providers: [
+      ChangeNotifierProvider(create: (context) => ZoomLevelProvider()),
+      ChangeNotifierProvider(create: (context) => UpdateLevelProvider()),
+      ],
+          child: Consumer<ZoomLevelProvider>(
+            builder: (context, zoomLevelProvider, child) {
+              return Scaffold(
+                body: Material(
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      FullMap(),
+                      zoomLevelProvider.zoomLevel ? const LevelSelector() : Container(),
+                    ],
+                  ),
+                ),
+              );
+            }
+          )
+  );
   }
 }

@@ -86,6 +86,7 @@ class FullMapState extends State<FullMap> {
   }
 
   paintLevel(int level) async{
+    print('level: $level painted');
     await delAllLevel();
     for (Map level in levels) {
       if (level['level'] == level) {
@@ -205,6 +206,12 @@ class FullMapState extends State<FullMap> {
   }
   }
 
+  void AutoPaint(UpdateLevelProvider updateLevelProvider){
+    updateLevelProvider.addListener(() {
+      paintLevel(updateLevelProvider.currentLevel);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     const styleUrl =
@@ -213,7 +220,9 @@ class FullMapState extends State<FullMap> {
     final ZoomLevelProvider updateZoomLevelProvider =
         Provider.of<ZoomLevelProvider>(context, listen: false);
 
-    return Scaffold(
+    return Consumer<UpdateLevelProvider>(
+      builder: (context, updateLevelProvider, child) {
+        return Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             mapController!.requestMyLocationLatLng().then((value) => value !=
@@ -241,7 +250,9 @@ class FullMapState extends State<FullMap> {
                     CameraPosition(target: value, zoom: 17.0)))
                 : null);
             loadBuildingLayer();
+            AutoPaint(updateLevelProvider);
           },
         ));
   }
+  );}
 }

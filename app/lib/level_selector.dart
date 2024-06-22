@@ -32,10 +32,8 @@ class _LevelSelectorState extends State<LevelSelector> {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
-    return ChangeNotifierProvider<UpdateLevelProvider>(
-        create: (context) => UpdateLevelProvider(),
-        child: Builder(builder: (BuildContext context) {
-          final updateLevelProvider = Provider.of<UpdateLevelProvider>(context);
+    return Consumer<UpdateLevelProvider>(
+        builder: (context, updateLevelProvider, child) {
           return Padding(
             padding: EdgeInsetsDirectional.symmetric(vertical: height * 0.06),
             child: Container(
@@ -78,6 +76,6 @@ class _LevelSelectorState extends State<LevelSelector> {
                   }),
             ),
           );
-        }));
+        });
   }
 }
