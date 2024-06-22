@@ -4,7 +4,7 @@ package geodataRepository
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/entities/geojson"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/repositories/geodataRepository"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/libraries/graceful"
@@ -18,16 +18,13 @@ type GeodataRepositoryImpl struct {
 }
 
 func NewRepository(dbConnString string, logger *slog.Logger) (*GeodataRepositoryImpl, func(), error) {
-	conn, err := pgx.Connect(context.Background(), dbConnString)
+	conn, err := pgxpool.New(context.Background(), dbConnString)
 	if err != nil {
 		return nil, graceful.NoOp, err
 	}
 
 	cancelFn := func() {
-		err := conn.Close(context.Background())
-		if err != nil {
-			logger.Error("failed to close connection", "error", err)
-		}
+		conn.Close()
 	}
 
 	q := New(conn)
