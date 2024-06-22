@@ -51,9 +51,7 @@ class _LevelSelectorState extends State<LevelSelector> {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
-                        setState(() {
                           updateLevelProvider.updateLevel(index);
-                        });
                       },
                       child: Container(
                         width: width * 0.1,
