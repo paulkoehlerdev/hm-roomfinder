@@ -118,20 +118,26 @@ class FullMapState extends State<FullMap> {
     });
   }
 
-  void loadLevel(){
+  Future<Map<String, dynamic>> loadLevel(id) async{
+    var api = GeodataRepository(api: GeodataApiSdk());
+    var res = await api.roomGet(id);
 
+    if (res.data != null) {
+      print(jsonEncode(res.data!.toJson()));
+      return {'id': 'room_$id', 'data': res.data!.toJson()};
+    }
+    return {};
   }
   
   void loadRooms (LatLng cameraPosition, double locationThreshold) async {
-    String layerId = 'room_ex';
-    String sourceId = 'room_ex';
     LatLng geojsonLoc = const LatLng(48.142868235160421, 11.568194183434708);
-    
-    GeojsonSourceProperties geojsonSource = GeojsonSourceProperties(
-      data: geojson,
-    );
+    int id = 1;
     if (pythLatLong(cameraPosition, geojsonLoc) < locationThreshold) {
-      addLayers(layerId, geojsonSource);
+      loadLevel(id).then((value) {
+        if (value.isNotEmpty) {
+          addLayers(value['id'], GeojsonSourceProperties(data: value['data']));
+        }
+      });
     }
   }
 
@@ -179,8 +185,6 @@ class FullMapState extends State<FullMap> {
 
     if (res.data != null) {
       print('BuildingGet: ${jsonEncode(res.data!.toJson())}');
-    
-      //print(res.data!.features.first.properties['id']);
 
       for (var feature in res.data!.features) {
         print(feature.properties['id']);
