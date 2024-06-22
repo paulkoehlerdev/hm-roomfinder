@@ -132,13 +132,20 @@ class FullMapState extends State<FullMap> {
   void loadRooms (LatLng cameraPosition, double locationThreshold) async {
     LatLng geojsonLoc = const LatLng(48.142868235160421, 11.568194183434708);
     int id = 1;
-    if (pythLatLong(cameraPosition, geojsonLoc) < locationThreshold) {
-      loadLevel(id).then((value) {
-        if (value.isNotEmpty) {
-          addLayers(value['id'], GeojsonSourceProperties(data: value['data']));
+    mapController!.getVisibleRegion().then((visable) {
+      for (var building in buildings) {
+        if (building['bounds']['north'] > visable.northeast.latitude &&
+            building['bounds']['south'] < visable.southwest.latitude &&
+            building['bounds']['east'] > visable.northeast.longitude &&
+            building['bounds']['west'] < visable.southwest.longitude) {
+            loadLevel(id).then((value) {
+              if (value.isNotEmpty) {
+                addLayers(value['id'], GeojsonSourceProperties(data: value['data']));
+              }
+            });
         }
-      });
-    }
+      }
+    });
   }
 
   void addLayers(String layerId, GeojsonSourceProperties geojsonSource){
