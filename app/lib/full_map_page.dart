@@ -36,22 +36,12 @@ class FullMapState extends State<FullMap> {
 
   void cameraListener(controller, updateZoomLevelProvider) {
     int oldTime = 0;
-    double oldZoom = 0.0;
     double zoomThreshold = 15.0;
     int timeThresholdMs = 100;
-    bool zoomChanged = false;
-    bool timeChanged = false;
     controller!.addListener(() {
       if (controller!.cameraPosition != null) {
-        // defining if the zoom level has changed
-        zoomChanged = oldZoom > zoomThreshold &&
-                controller!.cameraPosition!.zoom < zoomThreshold ||
-            oldZoom < zoomThreshold &&
-                controller!.cameraPosition!.zoom > zoomThreshold;
-        // defining if the time has changed
-        timeChanged =
-            DateTime.now().millisecondsSinceEpoch - oldTime > timeThresholdMs;
-        if (timeChanged || zoomChanged) {
+        // to prevent the function from running too often
+        if (DateTime.now().millisecondsSinceEpoch - oldTime > timeThresholdMs) {
           // if zooming in/ zoomed in
           if (controller!.cameraPosition!.zoom > zoomThreshold) {
             getIntersectingBuildings(controller!.cameraPosition!.target)
@@ -78,9 +68,6 @@ class FullMapState extends State<FullMap> {
             delAllLevel();
             updateZoomLevelProvider.updateZoomLevel(false);
           }
-          oldZoom = controller!.cameraPosition!.zoom;
-          zoomChanged = false;
-          timeChanged = false;
           oldTime = DateTime.now().millisecondsSinceEpoch;
         }
       }
@@ -88,7 +75,6 @@ class FullMapState extends State<FullMap> {
   }
 
   paintLevel(int level) async {
-    print('level: $level painted');
     await delAllLevel();
     for (Map level in levels) {
       if (level['level'] == level) {
@@ -172,6 +158,7 @@ class FullMapState extends State<FullMap> {
           layersInScreen = true;
           await loadLevel(building['id']);
         } else {
+          // if the building is already loaded and still in the screen
           layersInScreen = true;
         }
       }
@@ -233,7 +220,7 @@ class FullMapState extends State<FullMap> {
     }
   }
 
-  void AutoPaint(UpdateLevelProvider updateLevelProvider) {
+  void autoPaint(UpdateLevelProvider updateLevelProvider) {
     updateLevelProvider.addListener(() {
       paintLevel(updateLevelProvider.currentLevel);
     });
@@ -277,7 +264,7 @@ class FullMapState extends State<FullMap> {
                       CameraPosition(target: value, zoom: 17.0)))
                   : null);
               loadBuildingLayer();
-              AutoPaint(updateLevelProvider);
+              autoPaint(updateLevelProvider);
             },
           ));
     });
