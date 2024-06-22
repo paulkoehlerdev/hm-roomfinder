@@ -16,7 +16,8 @@ import (
 var _ geodataRepository.GeodataRepository = (*GeodataRepositoryImpl)(nil)
 
 type GeodataRepositoryImpl struct {
-	q *Queries
+	q      *Queries
+	logger *slog.Logger
 }
 
 func NewRepository(dbConnString string, logger *slog.Logger) (*GeodataRepositoryImpl, func(), error) {
@@ -34,7 +35,10 @@ func NewRepository(dbConnString string, logger *slog.Logger) (*GeodataRepository
 
 	q := New(conn)
 
-	return &GeodataRepositoryImpl{q: q}, cancelFn, nil
+	return &GeodataRepositoryImpl{
+		q:      q,
+		logger: logger,
+	}, cancelFn, nil
 }
 
 func (g GeodataRepositoryImpl) GetBuildings(ctx context.Context) (geojson.FeatureCollectionPolygon, error) {
