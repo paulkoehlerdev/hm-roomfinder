@@ -140,7 +140,7 @@ func (s SearchRepositoryImpl) Insert(documents []document.Document) error {
 	}
 
 	if taskInfo.Status != meilisearch.TaskStatusSucceeded {
-		return fmt.Errorf("task status is %s", taskInfo.Status)
+		return fmt.Errorf("task status is %s, with '%s'", taskInfo.Status, taskInfo.Error.Message)
 	}
 
 	if bytes, err := json.Marshal(info); err == nil {
