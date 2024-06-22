@@ -10,6 +10,7 @@ import 'api/geodata.dart';
 import 'api/json_extension.dart';
 
 List<Map<String, dynamic>> buildings = [];
+List<Map<String, dynamic>> levels = [];
 
 const fillLayer = FillLayerProperties(
   fillColor: '#ff0000',
@@ -57,7 +58,7 @@ class FullMapState extends State<FullMap> {
                 updateZoomLevelProvider.updateZoomLevel(
                 controller!.cameraPosition!.zoom > zoomThreshold)
               } else {
-                delRooms()
+                delAllLevel()
               }
             });
             oldZoom = controller!.cameraPosition!.zoom;
@@ -66,7 +67,7 @@ class FullMapState extends State<FullMap> {
             // if zooming out
           } else {
             oldCameraPose = controller!.cameraPosition!.target;
-            delRooms();
+            delAllLevel();
             oldZoom = controller!.cameraPosition!.zoom;
             updateZoomLevelProvider.updateZoomLevel(
                 controller!.cameraPosition!.zoom > zoomThreshold);
@@ -78,14 +79,18 @@ class FullMapState extends State<FullMap> {
     });
   }
 
-  Future<Map<String, dynamic>> loadLevel(id) async{
+  Future<bool> loadLevel(id) async{
     var api = GeodataRepository(api: GeodataApiSdk());
-    var res = await api.roomGet(id);
+    var res = await api.levelGet(id);
 
     if (res.data != null) {
-      return {'id': 'room_$id', 'data': res.data!.toJson()};
+      res.data!.features.forEach((element) {
+        num levelId = element.properties['id']!.asNum;
+        levels.add({'level': levelId, 'building_id': id, 'layer_id': 'level_${id}_$levelId', 'data': element.toJson()});
+      });
+      return true;
     }
-    return {};
+    return false;
   }
 
   bool isBuildingIntersect(LatLngBounds screenBounds, List buildingBounds) {
@@ -127,8 +132,8 @@ class FullMapState extends State<FullMap> {
         if (isBuildingIntersect(visable, building['bounds'])) {
             layersInScreen = true;
             loadLevel(building['id']).then((value) {
-              if (value.isNotEmpty) {
-                addLayers(value['id'], GeojsonSourceProperties(data: value['data']));
+              if (value) {
+                addLayers(levels[0]['id'], GeojsonSourceProperties(data: levels[0]['data']));
               }
             });
         }
@@ -152,12 +157,12 @@ class FullMapState extends State<FullMap> {
       });
   }
 
-  void delRooms() async {
+  void delAllLevel() async {
     mapController!.getLayerIds().then((layerIds) {
       //example geojson
       for (String layer in layerIds) {
         if (layer.length >= 4) {
-          if (layer.substring(0, 4) == 'room') {
+          if (layer.substring(0, 5) == 'level') {
             mapController!.removeLayer(layer);
           }
         }
