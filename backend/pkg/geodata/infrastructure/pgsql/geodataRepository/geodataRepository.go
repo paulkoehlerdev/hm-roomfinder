@@ -117,6 +117,7 @@ func decodeRowsIntoFeatureCollection[T RowModelWithGeom, G geojson.Coordinates](
 			}
 		}
 		delete(props, "geom")
+		delete(props, "bound")
 
 		geomBytes, boundBytes := feature.GetGeom()
 
