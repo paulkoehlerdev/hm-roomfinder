@@ -45,9 +45,10 @@ type databaseConfig struct {
 }
 
 type searchDatabaseConfig struct {
-	Host  string `hcl:"host"`
-	Key   string `hcl:"key"`
-	Index string `hcl:"index"`
+	Host     string `hcl:"host"`
+	Key      string `hcl:"key"`
+	Index    string `hcl:"index"`
+	ResLimit int64  `hcl:"res_limit"`
 }
 
 func (d databaseConfig) ConnString() string {

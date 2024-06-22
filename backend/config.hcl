@@ -24,4 +24,5 @@ search_database {
   host = "http://hm_roomfinder_geodata_meilisearch:7700"
   key = "hmroomdfindermasterkey"
   index = "hmroomfinder"
+  res_limit = 10
 }

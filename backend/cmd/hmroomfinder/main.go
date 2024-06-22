@@ -67,7 +67,7 @@ func run(ctx context.Context, args []string, stdout io.Writer) error {
 	}
 	gful.Add(bulkDataRepoShutdown)
 
-	searchRepository, err := searchRepository.New(config.SearchDatabase.Host, config.SearchDatabase.Key, config.SearchDatabase.Index, logger)
+	searchRepository, err := searchRepository.New(config.SearchDatabase.Host, config.SearchDatabase.Key, config.SearchDatabase.Index, config.SearchDatabase.ResLimit, logger)
 	if err != nil {
 		return fmt.Errorf("creating search repository: %w", err)
 	}

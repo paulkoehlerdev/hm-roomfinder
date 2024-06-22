@@ -14,12 +14,13 @@ import (
 var _ searchRepository.SearchRepository = (*SearchRepositoryImpl)(nil)
 
 type SearchRepositoryImpl struct {
-	logger *slog.Logger
-	index  *meilisearch.Index
-	client *meilisearch.Client
+	logger   *slog.Logger
+	resLimit int64
+	index    *meilisearch.Index
+	client   *meilisearch.Client
 }
 
-func New(host string, key string, index string, logger *slog.Logger) (*SearchRepositoryImpl, error) {
+func New(host string, key string, index string, resLimit int64, logger *slog.Logger) (*SearchRepositoryImpl, error) {
 	client := meilisearch.NewClient(meilisearch.ClientConfig{
 		Host:   host,
 		APIKey: key,
@@ -64,15 +65,16 @@ func New(host string, key string, index string, logger *slog.Logger) (*SearchRep
 	}
 
 	return &SearchRepositoryImpl{
-		logger: logger,
-		index:  meiliIndex,
-		client: client,
+		logger:   logger,
+		index:    meiliIndex,
+		client:   client,
+		resLimit: resLimit,
 	}, nil
 }
 
 func (s SearchRepositoryImpl) SearchPoint(searchTerm string, point geojson.CoordinatesPoint) (id []int64, err error) {
 	res, err := s.index.Search(searchTerm, &meilisearch.SearchRequest{
-		Limit: 10,
+		Limit: s.resLimit,
 		Sort: []string{
 			fmt.Sprintf("_geoPoint(%f, %f):asc", point[0], point[1]),
 		},
@@ -87,7 +89,7 @@ func (s SearchRepositoryImpl) SearchPoint(searchTerm string, point geojson.Coord
 
 func (s SearchRepositoryImpl) Search(searchTerm string) (id []int64, err error) {
 	res, err := s.index.Search(searchTerm, &meilisearch.SearchRequest{
-		Limit: 10,
+		Limit: s.resLimit,
 	})
 	if err != nil {
 		s.logger.Error(err.Error())
