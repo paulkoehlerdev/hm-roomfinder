@@ -5,7 +5,7 @@ import "github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/entit
 type Document struct {
 	Data map[string]interface{} `mapstructure:",remain"`
 	Geo  Geo                    `mapstructure:"_geo"`
-	Id   int64                  `mapstructure:"_doc_id"`
+	ID   int64                  `mapstructure:"_doc_id"`
 }
 
 type Geo struct {
