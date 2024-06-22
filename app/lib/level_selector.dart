@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
 
 import 'providers.dart';
 
@@ -20,7 +21,7 @@ class _LevelSelectorState extends State<LevelSelector> {
           return Padding(
             padding: EdgeInsetsDirectional.symmetric(vertical: height * 0.06),
             child: Container(
-              width: width * 0.5,
+              width: width * min(0.1 * updateLevelProvider.availableLevels.length, 0.5),
               height: height * 0.06,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
