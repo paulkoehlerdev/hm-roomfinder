@@ -85,7 +85,7 @@ func (b BulkDataRepositoryImpl) GetAllDocuments(ctx context.Context) ([]document
 				"Attr": json.RawMessage(row.Attr),
 			},
 			Geo: document.GeoFromGeojsonPoint(point),
-			Id:  *row.DocID,
+			ID:  *row.DocID,
 		})
 	}
 

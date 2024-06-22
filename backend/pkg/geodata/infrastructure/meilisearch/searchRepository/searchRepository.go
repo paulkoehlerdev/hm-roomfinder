@@ -112,7 +112,7 @@ func (s SearchRepositoryImpl) getIDsFromSearchResults(res *meilisearch.SearchRes
 			return nil, err
 		}
 
-		ids = append(ids, doc.Id)
+		ids = append(ids, doc.ID)
 	}
 
 	return ids, nil
