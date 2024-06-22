@@ -123,22 +123,48 @@ class FullMapState extends State<FullMap> {
     var res = await api.roomGet(id);
 
     if (res.data != null) {
-      print(jsonEncode(res.data!.toJson()));
       return {'id': 'room_$id', 'data': res.data!.toJson()};
     }
     return {};
   }
+
+  bool isBuildingIntersect(LatLngBounds screenBounds, List buildingBounds) {
+    LatLngBounds building = LatLngBounds(
+        southwest: LatLng(buildingBounds[0][0][1], buildingBounds[0][0][0]),
+        northeast: LatLng(buildingBounds[0][2][1], buildingBounds[0][2][0]));
+
+    if (screenBounds.northeast.latitude > building.southwest.latitude &&
+        screenBounds.southwest.latitude < building.southwest.latitude &&
+        screenBounds.northeast.longitude > building.southwest.longitude &&
+        screenBounds.southwest.longitude < building.southwest.longitude) {
+      return true;
+    }
+    if (screenBounds.northeast.latitude > building.northeast.latitude &&
+        screenBounds.southwest.latitude < building.northeast.latitude &&
+        screenBounds.northeast.longitude > building.northeast.longitude &&
+        screenBounds.southwest.longitude < building.northeast.longitude) {
+      return true;
+    }
+    if (screenBounds.northeast.latitude > building.southwest.latitude &&
+        screenBounds.southwest.latitude < building.southwest.latitude &&
+        screenBounds.northeast.longitude > building.northeast.longitude &&
+        screenBounds.southwest.longitude < building.northeast.longitude) {
+      return true;
+    }
+    if (screenBounds.northeast.latitude > building.northeast.latitude &&
+        screenBounds.southwest.latitude < building.northeast.latitude &&
+        screenBounds.northeast.longitude > building.southwest.longitude &&
+        screenBounds.southwest.longitude < building.southwest.longitude) {
+      return true;
+    }
+    return false;
+  }
   
   void loadRooms (LatLng cameraPosition, double locationThreshold) async {
-    LatLng geojsonLoc = const LatLng(48.142868235160421, 11.568194183434708);
-    int id = 1;
     mapController!.getVisibleRegion().then((visable) {
-      for (var building in buildings) {
-        if (building['bounds']['north'] > visable.northeast.latitude &&
-            building['bounds']['south'] < visable.southwest.latitude &&
-            building['bounds']['east'] > visable.northeast.longitude &&
-            building['bounds']['west'] < visable.southwest.longitude) {
-            loadLevel(id).then((value) {
+      for (Map building in buildings) {
+        if (isBuildingIntersect(visable, building['bounds'])) {
+            loadLevel(building['id']).then((value) {
               if (value.isNotEmpty) {
                 addLayers(value['id'], GeojsonSourceProperties(data: value['data']));
               }
@@ -191,13 +217,11 @@ class FullMapState extends State<FullMap> {
     var res = await api.buildingGet();
 
     if (res.data != null) {
-      print('BuildingGet: ${jsonEncode(res.data!.toJson())}');
-
+      // adding the buildings and bounds to the list
       for (var feature in res.data!.features) {
-        print(feature.properties['id']);
-        buildings.add({'id': feature.properties['id']});
+        buildings.add({'id': feature.properties['id']!.asNum, 'bounds': feature.bound.coordinates.asList()});
       }
-
+      // displaying the buildings
       addLayers('buildings', GeojsonSourceProperties(data: res.data!.toJson()));
   }
   }
