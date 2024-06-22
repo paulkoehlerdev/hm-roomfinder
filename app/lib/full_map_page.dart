@@ -11,6 +11,7 @@ import 'api/json_extension.dart';
 
 List<Map<String, dynamic>> buildings = [];
 List<Map<String, dynamic>> levels = [];
+List loadedLevels = [];
 
 const fillLayer = FillLayerProperties(
   fillColor: '#ff0000',
@@ -53,7 +54,7 @@ class FullMapState extends State<FullMap> {
           // if zooming in
           if (controller!.cameraPosition!.zoom > zoomThreshold) {
             oldCameraPose = controller!.cameraPosition!.target;
-            loadRooms(controller!.cameraPosition!.target).then((layersInScreen) => {
+            getIntersectingBuildings(controller!.cameraPosition!.target).then((layersInScreen) => {
               if (layersInScreen) {
                 updateZoomLevelProvider.updateZoomLevel(
                 controller!.cameraPosition!.zoom > zoomThreshold)
@@ -86,6 +87,7 @@ class FullMapState extends State<FullMap> {
     if (res.data != null) {
       res.data!.features.forEach((element) {
         num levelId = element.properties['id']!.asNum;
+        loadedLevels.add(id);
         levels.add({'level': levelId, 'building_id': id, 'layer_id': 'level_${id}_$levelId', 'data': element.toJson()});
       });
       return true;
@@ -125,17 +127,19 @@ class FullMapState extends State<FullMap> {
     return false;
   }
   
-  Future<bool> loadRooms (LatLng cameraPosition) async {
+  Future<bool> getIntersectingBuildings (LatLng cameraPosition) async {
     bool layersInScreen = false;
     mapController!.getVisibleRegion().then((visable) {
       for (Map building in buildings) {
-        if (isBuildingIntersect(visable, building['bounds'])) {
-            layersInScreen = true;
-            loadLevel(building['id']).then((value) {
-              if (value) {
-                addLayers(levels[0]['id'], GeojsonSourceProperties(data: levels[0]['data']));
-              }
-            });
+        if (!loadedLevels.contains(building['id'])){ // if the building is not already loaded
+          if (isBuildingIntersect(visable, building['bounds'])) { // if the building is in the screen
+              layersInScreen = true;
+              loadLevel(building['id']).then((value) {
+                if (value) {
+                  addLayers(levels[0]['id'], GeojsonSourceProperties(data: levels[0]['data']));
+                }
+              });
+          }
         }
       }
     });
@@ -158,6 +162,8 @@ class FullMapState extends State<FullMap> {
   }
 
   void delAllLevel() async {
+    levels.clear();
+    loadedLevels.clear();
     mapController!.getLayerIds().then((layerIds) {
       //example geojson
       for (String layer in layerIds) {
