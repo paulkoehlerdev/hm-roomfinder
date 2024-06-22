@@ -100,12 +100,15 @@ class FullMapState extends State<FullMap> {
     var api = GeodataRepository(api: GeodataApiSdk());
     var res = await api.levelGet(id);
 
+    Set availableLevels = {};
     if (res.data != null) {
       res.data!.features.forEach((element) {
         num levelId = element.properties['id']!.asNum;
         loadedLevels.add(id);
         levels.add({'level': levelId, 'building_id': id, 'layer_id': 'level_${id}_$levelId', 'data': element.toJson()});
+        availableLevels.add(levelId.toString());
       });
+      Provider.of<UpdateLevelProvider>(context, listen: false).setAvailableLevels(availableLevels.toList());
     }
   }
 

@@ -10,23 +10,6 @@ class LevelSelector extends StatefulWidget {
   State<LevelSelector> createState() => _LevelSelectorState();
 }
 
-final showLevels = [
-  'ug',
-  'eg',
-  '1',
-  '2',
-  '3',
-  '4',
-  '5',
-  '6',
-  '7',
-  '8',
-  '9',
-  '10',
-  '11',
-  '12'
-];
-
 class _LevelSelectorState extends State<LevelSelector> {
   @override
   Widget build(BuildContext context) {
@@ -45,7 +28,7 @@ class _LevelSelectorState extends State<LevelSelector> {
               ),
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: showLevels.length,
+                  itemCount: updateLevelProvider.availableLevels.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
@@ -59,7 +42,7 @@ class _LevelSelectorState extends State<LevelSelector> {
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).colorScheme.background),
                         child: Center(
-                            child: Text(showLevels[index],
+                            child: Text(updateLevelProvider.availableLevels[index].toString(),
                                 style: TextStyle(
                                     color: updateLevelProvider.currentLevel ==
                                             index
