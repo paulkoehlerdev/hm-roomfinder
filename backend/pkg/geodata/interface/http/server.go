@@ -64,27 +64,51 @@ func RegisterGeodataServer(mux *http.ServeMux, s handlers.GeodataServerImpl, log
 }
 
 func MetricsMiddleware() geodata.StrictMiddlewareFunc {
-	reqRecieved := promauto.NewCounter(prometheus.CounterOpts{
-		Name: "geodata_http_request_recieved",
-	})
+	reqRecieved := promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "geodata_http_request_recieved",
+		},
+		[]string{"path", "operation_id"},
+	)
 
-	reqFailed := promauto.NewCounter(prometheus.CounterOpts{
-		Name: "geodata_http_request_failed",
-	})
+	reqFailed := promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "geodata_http_request_failed",
+		},
+		[]string{"path", "operation_id"},
+	)
 
-	reqSuccess := promauto.NewCounter(prometheus.CounterOpts{
-		Name: "geodata_http_request_success",
-	})
+	reqSuccess := promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "geodata_http_request_success",
+		},
+		[]string{"path", "operation_id"},
+	)
+
+	resTime := promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name: "geodata_http_request_response_time",
+		},
+		[]string{"path", "operation_id"},
+	)
+
+	_ = prometheus.Register(reqRecieved)
+	_ = prometheus.Register(reqFailed)
+	_ = prometheus.Register(reqSuccess)
+	_ = prometheus.Register(resTime)
 
 	return func(f strictnethttp.StrictHTTPHandlerFunc, operationID string) strictnethttp.StrictHTTPHandlerFunc {
 		return func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (response interface{}, err error) {
-			reqRecieved.Inc()
+			timer := prometheus.NewTimer(resTime.WithLabelValues(r.URL.Path, operationID))
+			defer timer.ObserveDuration()
+
+			reqRecieved.WithLabelValues(r.URL.Path, operationID).Inc()
 
 			response, err = f(ctx, w, r, request)
 			if err != nil {
-				reqFailed.Inc()
+				reqFailed.WithLabelValues(r.URL.Path, operationID).Inc()
 			} else {
-				reqSuccess.Inc()
+				reqSuccess.WithLabelValues(r.URL.Path, operationID).Inc()
 			}
 			return response, err
 		}

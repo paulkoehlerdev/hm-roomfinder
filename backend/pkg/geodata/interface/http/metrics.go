@@ -9,9 +9,12 @@ import (
 )
 
 func RunMetrics(bindAddr string, logger *slog.Logger) func() {
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+
 	server := &http.Server{
 		Addr:              bindAddr,
-		Handler:           promhttp.Handler(),
+		Handler:           mux,
 		ReadHeaderTimeout: time.Second,
 	}
 
