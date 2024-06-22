@@ -52,11 +52,11 @@ class FullMapState extends State<FullMap> {
           // if zooming in
           if (controller!.cameraPosition!.zoom > zoomThreshold) {
             getIntersectingBuildings(controller!.cameraPosition!.target).then((newLayersInScreen) => {
-              if (newLayersInScreen) {
+              if (newLayersInScreen['new']!) {
                 updateZoomLevelProvider.updateZoomLevel(
                 controller!.cameraPosition!.zoom > zoomThreshold),
                 paintLevel(0)
-              } else {
+              } else if (!newLayersInScreen['total']!){
                 levels.clear(),
                 loadedLevels.clear(),
                 delAllLevel(),
@@ -144,18 +144,22 @@ class FullMapState extends State<FullMap> {
     return false;
   }
   
-  Future<bool> getIntersectingBuildings (LatLng cameraPosition) async {
-    bool layersInScreenChanged = false;
+  Future<Map<String,bool>> getIntersectingBuildings (LatLng cameraPosition) async {
+    bool newLayersInScreen = false;
+    bool layersInScreen = false;
     LatLngBounds visable =  await mapController!.getVisibleRegion();
     for (Map building in buildings) {
-      if (!loadedLevels.contains(building['id'])){ // if the building is not already loaded
-        if (isBuildingIntersect(visable, building['bounds'])) { // if the building is in the screen
-            layersInScreenChanged = true;
+      if (isBuildingIntersect(visable, building['bounds'])) { // if the building is in the screen
+        if (!loadedLevels.contains(building['id'])){ // if the building is not already loaded
+            newLayersInScreen = true;
+            layersInScreen = true;
             await loadLevel(building['id']);
+        } else {
+          layersInScreen = true;
         }
       }
     }
-    return layersInScreenChanged;
+    return {'new': newLayersInScreen, 'total': layersInScreen};
   }
 
   void addLayers(String layerId, GeojsonSourceProperties geojsonSource){
