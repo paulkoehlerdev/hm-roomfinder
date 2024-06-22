@@ -66,6 +66,7 @@ func New(host string, key string, index string, logger *slog.Logger) (*SearchRep
 	return &SearchRepositoryImpl{
 		logger: logger,
 		index:  meiliIndex,
+		client: client,
 	}, nil
 }
 
