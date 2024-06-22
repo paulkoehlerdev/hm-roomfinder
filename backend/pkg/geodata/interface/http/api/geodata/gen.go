@@ -114,6 +114,13 @@ type GetRoomParams struct {
 	LevelId int `form:"level_id" json:"level_id"`
 }
 
+// GetSearchParams defines parameters for GetSearch.
+type GetSearchParams struct {
+	Q   string   `form:"q" json:"q"`
+	Lat *float64 `form:"lat,omitempty" json:"lat,omitempty"`
+	Lon *float64 `form:"lon,omitempty" json:"lon,omitempty"`
+}
+
 // AsGeometryPolygon returns the union data inside the Feature_Geometry as a GeometryPolygon
 func (t Feature_Geometry) AsGeometryPolygon() (GeometryPolygon, error) {
 	var body GeometryPolygon
@@ -251,9 +258,15 @@ type ServerInterface interface {
 	// Get Levels
 	// (GET /level)
 	GetLevel(w http.ResponseWriter, r *http.Request, params GetLevelParams)
+	// Reindex the Search
+	// (GET /reindex)
+	GetReindex(w http.ResponseWriter, r *http.Request)
 	// Get Rooms
 	// (GET /room)
 	GetRoom(w http.ResponseWriter, r *http.Request, params GetRoomParams)
+	// Search
+	// (GET /search)
+	GetSearch(w http.ResponseWriter, r *http.Request, params GetSearchParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -350,6 +363,21 @@ func (siw *ServerInterfaceWrapper) GetLevel(w http.ResponseWriter, r *http.Reque
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
+// GetReindex operation middleware
+func (siw *ServerInterfaceWrapper) GetReindex(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetReindex(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
 // GetRoom operation middleware
 func (siw *ServerInterfaceWrapper) GetRoom(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -376,6 +404,57 @@ func (siw *ServerInterfaceWrapper) GetRoom(w http.ResponseWriter, r *http.Reques
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetRoom(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetSearch operation middleware
+func (siw *ServerInterfaceWrapper) GetSearch(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetSearchParams
+
+	// ------------- Required query parameter "q" -------------
+
+	if paramValue := r.URL.Query().Get("q"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "q"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "q", r.URL.Query(), &params.Q)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "q", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "lat" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "lat", r.URL.Query(), &params.Lat)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "lat", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "lon" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "lon", r.URL.Query(), &params.Lon)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "lon", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetSearch(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -502,7 +581,9 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/building", wrapper.GetBuilding)
 	m.HandleFunc("GET "+options.BaseURL+"/door", wrapper.GetDoor)
 	m.HandleFunc("GET "+options.BaseURL+"/level", wrapper.GetLevel)
+	m.HandleFunc("GET "+options.BaseURL+"/reindex", wrapper.GetReindex)
 	m.HandleFunc("GET "+options.BaseURL+"/room", wrapper.GetRoom)
+	m.HandleFunc("GET "+options.BaseURL+"/search", wrapper.GetSearch)
 
 	return m
 }
@@ -582,6 +663,21 @@ func (response GetLevel400Response) VisitGetLevelResponse(w http.ResponseWriter)
 	return nil
 }
 
+type GetReindexRequestObject struct {
+}
+
+type GetReindexResponseObject interface {
+	VisitGetReindexResponse(w http.ResponseWriter) error
+}
+
+type GetReindex200Response struct {
+}
+
+func (response GetReindex200Response) VisitGetReindexResponse(w http.ResponseWriter) error {
+	w.WriteHeader(200)
+	return nil
+}
+
 type GetRoomRequestObject struct {
 	Params GetRoomParams
 }
@@ -608,6 +704,25 @@ func (response GetRoom400Response) VisitGetRoomResponse(w http.ResponseWriter) e
 	return nil
 }
 
+type GetSearchRequestObject struct {
+	Params GetSearchParams
+}
+
+type GetSearchResponseObject interface {
+	VisitGetSearchResponse(w http.ResponseWriter) error
+}
+
+type GetSearch200ApplicationGeoPlusJSONResponse struct {
+	FeatureCollection200ApplicationGeoPlusJSONResponse
+}
+
+func (response GetSearch200ApplicationGeoPlusJSONResponse) VisitGetSearchResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/geo+json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// Get Buildings
@@ -619,9 +734,15 @@ type StrictServerInterface interface {
 	// Get Levels
 	// (GET /level)
 	GetLevel(ctx context.Context, request GetLevelRequestObject) (GetLevelResponseObject, error)
+	// Reindex the Search
+	// (GET /reindex)
+	GetReindex(ctx context.Context, request GetReindexRequestObject) (GetReindexResponseObject, error)
 	// Get Rooms
 	// (GET /room)
 	GetRoom(ctx context.Context, request GetRoomRequestObject) (GetRoomResponseObject, error)
+	// Search
+	// (GET /search)
+	GetSearch(ctx context.Context, request GetSearchRequestObject) (GetSearchResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -729,6 +850,30 @@ func (sh *strictHandler) GetLevel(w http.ResponseWriter, r *http.Request, params
 	}
 }
 
+// GetReindex operation middleware
+func (sh *strictHandler) GetReindex(w http.ResponseWriter, r *http.Request) {
+	var request GetReindexRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetReindex(ctx, request.(GetReindexRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetReindex")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetReindexResponseObject); ok {
+		if err := validResponse.VisitGetReindexResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // GetRoom operation middleware
 func (sh *strictHandler) GetRoom(w http.ResponseWriter, r *http.Request, params GetRoomParams) {
 	var request GetRoomRequestObject
@@ -755,27 +900,55 @@ func (sh *strictHandler) GetRoom(w http.ResponseWriter, r *http.Request, params 
 	}
 }
 
+// GetSearch operation middleware
+func (sh *strictHandler) GetSearch(w http.ResponseWriter, r *http.Request, params GetSearchParams) {
+	var request GetSearchRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetSearch(ctx, request.(GetSearchRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetSearch")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetSearchResponseObject); ok {
+		if err := validResponse.VisitGetSearchResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"H4sIAAAAAAAC/+RXS3PbNhD+Kxy0tzLiG3zc6qZNPI0bj92bR9OByZWEhARoAPRY9ei/dxaEXpYcKZPm",
+	"0t5I4MO3u98uuMtnUsuulwKE0aR6Jgp0L4UG+3LBmht4GECbNAxxoQFdK94bLgWpcNtz+2Tlk9+AmUHB",
+	"L7JtoUZIPB6qpTAgDD6yvm95zXAzmIP86ZNGomei6wV0DJ9+VDAjFfkh2LoVjLs6ODBAVquV/8Kp26Gu",
+	"QevZ0HrrWAiiHAnacDz42CvZgzJ8jPdeDqI55cU7kB0YtbyW7XKOPvhk7pasRBy96bhgRipc6FjfczHH",
+	"x2vJUYdTvAjyyZr/fDdcMMs/WAekImbZAy5LAR9npLr72rDOxaO7q6n/QktrvXomIIaOVHfkZVhT30GI",
+	"Ngr1wSQpeBi4ggYP2N3p6iUvaxqOqWbt9c66UQNsCOX9J6htSb50Yp3584zvmfZddexke3rE4mGNHlTZ",
+	"bITYZ26g02fW/TYgwpRiyy8EuGP+3FA3Xh2Laj/ZBxHVUqoGK358hSfW9S2Q6u4uiiYZLWiWxHFMyygs",
+	"cz8tJlGa5GGaFiENkzieTv2tDjOpOoZ3pJHDfYuOOWfE0N2DQmc69nQ5wmOfdFxsX06pM7p/riK7UX1Z",
+	"FHdRz5flPF18BwtpnKVxGJVlMqLiPA7TNAmjMivSNQxZoiiPaJlSB0ujJCuKPInDLSqN47ikRZYUaepg",
+	"WZRGURhRGu3g4ohGWRLTlMYOVoR5nuRpUmT5FpbEeZQlNCvDonAhhHEchmkZl1G29S2jtChymqelo0ti",
+	"miW0TIqC5ptIizIKi5DmZZ67GBKaFEla0oSmyQZ2qp52C+rw4TuU2Kn33RL8ms/fqSLEQ1zM5GFvfn/l",
+	"3UjZzbhoQHnvQDbMMO+C1Z9BNN7HHsTP15ee7qHmM9eRiU9aXgM2zOqZiLGJXF3+SXwyqJZUZGFMr6sg",
+	"kD0ILQdVw0SqeeAO6aDj5o17mfSL3obPDVY8eX/15tAd4pNHUHp0OJqEk9C2qx4E6zmpSGKXfNIzs7CZ",
+	"C+4H3jaumc7BHIZ9A2ZQQntyMC0XoD0mGg8VwpRzKbyZVB5rW2/NhB92vLN297IhFXkH5mJtxt+fh9xA",
+	"c+xbvcEFR8cgO4EMXcdwSEAT3sXGAdwLGjlOC98WFbIcjegt0qOSinVgQGk7D3AkfxhALYm/TngLj9D+",
+	"xRuyW45je91Oaa4MuTAwxxuD7f/fUson6TmH92fTQ33fWimstjakbxfX0hxV94M1cJa867r7Dyj8YdTD",
+	"SqwAb/bTF0S2+6A9swBPA1P1wpsNoh5HOW6Wx3R1p165hvsWPv7u3ezN+xtfHYu1fGstO5+l7L69KpDl",
+	"aFHg9+7/deVurBRW2zHDr6p7xT6Dx1wdHBPvdr1zhnwP5+i27bKv5IDhz8n22Mkh4VUi20i/hmj6nbrM",
+	"ptZxFdTjWsP9VFwr2QyWwbu1oIN2z3o+WXRq074nc6k7JQfDZ8vJ0/Lv4DEK7O/iPvEHWbPWewuP3q/i",
+	"kSspOrA/gFvyKghaBC2kNlURFuHINF39EwAA//9nBal4lRAAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

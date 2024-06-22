@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/application"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/service/geodataService"
+	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/domain/service/searchService"
+	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/infrastructure/meilisearch/searchRepository"
+	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/infrastructure/pgsql/bulkDataRepository"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/infrastructure/pgsql/geodataRepository"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/geodata/interface/http"
 	"github.com/paulkoehlerdev/hm-roomfinder/backend/pkg/libraries/graceful"
@@ -58,9 +61,22 @@ func run(ctx context.Context, args []string, stdout io.Writer) error {
 	}
 	gful.Add(geodataRepoShutdown)
 
+	bulkDataRepo, bulkDataRepoShutdown, err := bulkDataRepository.NewRepository(config.Database.ConnString(), logger)
+	if err != nil {
+		return fmt.Errorf("creating geodata repository: %w", err)
+	}
+	gful.Add(bulkDataRepoShutdown)
+
+	searchRepository, err := searchRepository.New(config.SearchDatabase.Host, config.SearchDatabase.Key, config.SearchDatabase.Index, logger)
+	if err != nil {
+		return fmt.Errorf("creating search repository: %w", err)
+	}
+
 	geodataService := geodataService.New(geodataRepo)
 
-	application := application.New(geodataService)
+	searchService := searchService.New(searchRepository, bulkDataRepo)
+
+	application := application.New(geodataService, searchService)
 
 	serverShutdown := http.Run(application, config.Server.Bind, logger)
 

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/backend/pkg/geodata/infrastructure/pgsql/bulkDataRepository/repository.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/backend/pkg/geodata/infrastructure/pgsql/geodataRepository/repository.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/backend/pkg/geodata/infrastructure/pgsql/geodataRepository/schema.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/backend/pkg/geodata/infrastructure/pgsql/schema.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/geodata/pgdump/building.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/geodata/pgdump/level.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/geodata/pgdump/mockdata.sql" dialect="PostgreSQL" />

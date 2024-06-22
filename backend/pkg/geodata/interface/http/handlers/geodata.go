@@ -87,6 +87,36 @@ func (s GeodataServerImpl) GetRoom(ctx context.Context, request geodata.GetRoomR
 	}, nil
 }
 
+func (s GeodataServerImpl) GetReindex(ctx context.Context, _ geodata.GetReindexRequestObject) (geodata.GetReindexResponseObject, error) {
+	err := s.application.ReindexSearch(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return geodata.GetReindex200Response{}, nil
+}
+
+func (s GeodataServerImpl) GetSearch(ctx context.Context, request geodata.GetSearchRequestObject) (geodata.GetSearchResponseObject, error) {
+	var coos *geojson.CoordinatesPoint
+	if request.Params.Lon != nil && request.Params.Lat != nil {
+		coos = &geojson.CoordinatesPoint{*request.Params.Lat, *request.Params.Lon}
+	}
+
+	fc, err := s.application.Search(ctx, request.Params.Q, coos)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := geojsonFeatureCollectionToGeodataFeatureCollection(fc)
+	if err != nil {
+		return nil, err
+	}
+
+	return geodata.GetSearch200ApplicationGeoPlusJSONResponse{
+		FeatureCollection200ApplicationGeoPlusJSONResponse: geodata.FeatureCollection200ApplicationGeoPlusJSONResponse(res),
+	}, nil
+}
+
 func geojsonFeatureCollectionToGeodataFeatureCollection[T geojson.Coordinates](featureCollection geojson.FeatureCollection[T]) (geodata.FeatureCollection, error) {
 	convFeatures := make([]geodata.Feature, 0, len(featureCollection.Features))
 

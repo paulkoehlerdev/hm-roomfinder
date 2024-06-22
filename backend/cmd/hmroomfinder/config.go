@@ -7,9 +7,10 @@ import (
 )
 
 type config struct {
-	Server   serverConfig   `hcl:"server,block"`
-	Logger   loggerConfig   `hcl:"logger,block"`
-	Database databaseConfig `hcl:"database,block"`
+	Server         serverConfig         `hcl:"server,block"`
+	Logger         loggerConfig         `hcl:"logger,block"`
+	Database       databaseConfig       `hcl:"database,block"`
+	SearchDatabase searchDatabaseConfig `hcl:"search_database,block"`
 }
 
 func (c *config) String() string {
@@ -41,6 +42,12 @@ type databaseConfig struct {
 	Username string `hcl:"username"`
 	Password string `hcl:"password"`
 	Database string `hcl:"database"`
+}
+
+type searchDatabaseConfig struct {
+	Host  string `hcl:"host"`
+	Key   string `hcl:"key"`
+	Index string `hcl:"index"`
 }
 
 func (d databaseConfig) ConnString() string {
