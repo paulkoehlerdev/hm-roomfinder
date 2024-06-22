@@ -66,7 +66,7 @@ func RegisterGeodataServer(mux *http.ServeMux, s handlers.GeodataServerImpl, log
 func MetricsMiddleware() geodata.StrictMiddlewareFunc {
 	reqRecieved := promauto.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "geodata_http_request_recieved",
+			Name: "geodata_http_request_received",
 		},
 		[]string{"path", "operation_id"},
 	)
