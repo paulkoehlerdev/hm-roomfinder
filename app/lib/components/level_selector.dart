@@ -1,4 +1,4 @@
-import 'package:app/providers/visible_geodata_provider.dart';
+import 'package:app/providers/level_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
@@ -15,13 +15,13 @@ class _LevelSelectorState extends State<LevelSelector> {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
-    return Consumer<VisibleGeodataProvider>(
+    return Consumer<LevelProvider>(
         builder: (context, levelProvider, child) {
           return Padding(
             padding: const EdgeInsets.only(right: 12.0),
             child: Container(
               // if there is no current level, the width is set to 0 --> the level selector is not visible
-              width: levelProvider.currentLevel == null ? 0 : width * min(0.1 * levelProvider.availableLevels.length, 0.5),
+              width: levelProvider.currentLevelId == null ? 0 : width * min(0.1 * levelProvider.levelNames.length, 0.5),
               height: height * 0.06,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -29,23 +29,23 @@ class _LevelSelectorState extends State<LevelSelector> {
               ),
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: levelProvider.availableLevels.length,
+                  itemCount: levelProvider.levelNames.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
-                        levelProvider.setCurrentLevel(levelProvider.availableLevels[index]);
+                        levelProvider.selectLevel(levelProvider.levelNames.values.toList()[index]);
                       },
                       child: Container(
                         width: width * 0.1,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: levelProvider.currentLevel == levelProvider.availableLevels[index]
+                            color: levelProvider.currentLevelId == levelProvider.levelNames.values.toList()[index]
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).colorScheme.background),
                         child: Center(
-                            child: Text(levelProvider.availableLevels[index],
+                            child: Text(levelProvider.levelNames.keys.toList()[index],
                                 style: TextStyle(
-                                    color: levelProvider.currentLevel == levelProvider.availableLevels[index]
+                                    color: levelProvider.currentLevelId == levelProvider.levelNames.values.toList()[index]
                                         ? Theme.of(context)
                                             .colorScheme
                                             .onPrimary

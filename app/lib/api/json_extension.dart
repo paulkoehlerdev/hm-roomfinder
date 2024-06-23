@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
 
 extension JsonFeatureCollection on FeatureCollection {
   Map<String, dynamic> toJson() {

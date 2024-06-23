@@ -12,7 +12,8 @@ dependencies:
 
   cupertino_icons: ^1.0.6
   provider: ^6.1.2
-  maplibre_gl: ^0.20.0
+  flutter_map: ^7.0.1
+  latlong2: ^0.9.1
   location: ^6.0.2
   openapi_generator_annotations: ^5.0.2
   flutter_svg: ^2.0.10+1
