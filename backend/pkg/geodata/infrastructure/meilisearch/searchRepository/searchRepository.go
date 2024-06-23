@@ -50,6 +50,7 @@ func New(host string, key string, index string, resLimit int64, logger *slog.Log
 	// make _geo sortable
 	taskInfo, err := meiliIndex.UpdateSortableAttributes(&[]string{
 		"_geo",
+		"name",
 	})
 	if err != nil {
 		return nil, err
@@ -77,6 +78,7 @@ func (s SearchRepositoryImpl) SearchPoint(searchTerm string, point geojson.Coord
 		Limit: s.resLimit,
 		Sort: []string{
 			fmt.Sprintf("_geoPoint(%f, %f):asc", point[0], point[1]),
+			"name:asc",
 		},
 	})
 	if err != nil {
@@ -90,6 +92,9 @@ func (s SearchRepositoryImpl) SearchPoint(searchTerm string, point geojson.Coord
 func (s SearchRepositoryImpl) Search(searchTerm string) (id []int64, err error) {
 	res, err := s.index.Search(searchTerm, &meilisearch.SearchRequest{
 		Limit: s.resLimit,
+		Sort: []string{
+			"name:asc",
+		},
 	})
 	if err != nil {
 		s.logger.Error(err.Error())
