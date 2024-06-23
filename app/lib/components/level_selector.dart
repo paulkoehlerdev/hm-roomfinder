@@ -20,7 +20,8 @@ class _LevelSelectorState extends State<LevelSelector> {
           return Padding(
             padding: const EdgeInsets.only(right: 12.0),
             child: Container(
-              width: width * min(0.1 * levelProvider.availableLevels.length, 0.5),
+              // if there is no current level, the width is set to 0 --> the level selector is not visible
+              width: levelProvider.currentLevel == null ? 0 : width * min(0.1 * levelProvider.availableLevels.length, 0.5),
               height: height * 0.06,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),

@@ -41,7 +41,7 @@ class FullMapState extends State<FullMap> {
         floatingActionButton: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            LevelSelector(),
+            const LevelSelector(),
             FloatingActionButton(
               onPressed: () {
                 // TODO: implement my location button
