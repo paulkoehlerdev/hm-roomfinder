@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'flutter_map_page/room_layer.dart';
+import 'flutter_map_page/search_bar_layer.dart';
 
 
 class FullMap extends StatefulWidget {
@@ -49,6 +50,7 @@ class FullMapState extends State<FullMap> {
           const LevelLayer(),
           const RoomLayer(),
           const RoomNameLayer(),
+          const SearchBarLayer(),
         ],
       ),
     );

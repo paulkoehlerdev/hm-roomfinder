@@ -56,7 +56,11 @@ class LevelProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectLevel(int levelId) {
+  void selectLevel(int? levelId) {
+    if (levelId == null) {
+      return;
+    }
+
     _currentLevelId = levelId;
     notifyListeners();
   }
