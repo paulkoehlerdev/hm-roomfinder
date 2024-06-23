@@ -26,8 +26,6 @@ class ManageRooms{
       dellAllRooms();
 
       if (res.data != null){
-        //print(res.data!);
-        print('rooms_$levelId');
         addLayers.addLayers('rooms_$levelId', GeojsonSourceProperties(data: res.data!.toJson()), mapController);
       }
     }
