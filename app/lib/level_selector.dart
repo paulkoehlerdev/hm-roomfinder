@@ -16,12 +16,12 @@ class _LevelSelectorState extends State<LevelSelector> {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
-    return Consumer<UpdateLevelProvider>(
-        builder: (context, updateLevelProvider, child) {
+    return Consumer<VisibleGeodataProvider>(
+        builder: (context, levelProvider, child) {
           return Padding(
             padding: EdgeInsetsDirectional.symmetric(vertical: height * 0.06),
             child: Container(
-              width: width * min(0.1 * updateLevelProvider.availableLevels.length, 0.5),
+              width: width * min(0.1 * levelProvider.availableLevels.length, 0.5),
               height: height * 0.06,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -29,24 +29,23 @@ class _LevelSelectorState extends State<LevelSelector> {
               ),
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: updateLevelProvider.availableLevels.length,
+                  itemCount: levelProvider.availableLevels.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
-                          updateLevelProvider.updateLevel(index);
+                        levelProvider.setCurrentLevel(levelProvider.availableLevels[index]);
                       },
                       child: Container(
                         width: width * 0.1,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: updateLevelProvider.currentLevel == index
+                            color: levelProvider.currentLevel == levelProvider.availableLevels[index]
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).colorScheme.background),
                         child: Center(
-                            child: Text(updateLevelProvider.availableLevels[index][0]['level_name'].toString(),
+                            child: Text(levelProvider.availableLevels[index],
                                 style: TextStyle(
-                                    color: updateLevelProvider.currentLevel ==
-                                            index
+                                    color: levelProvider.currentLevel == levelProvider.availableLevels[index]
                                         ? Theme.of(context)
                                             .colorScheme
                                             .onPrimary

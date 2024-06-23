@@ -10,25 +10,25 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(providers: [
-      ChangeNotifierProvider(create: (context) => ZoomLevelProvider()),
-      ChangeNotifierProvider(create: (context) => UpdateLevelProvider()),
-      ],
-          child: Consumer<ZoomLevelProvider>(
-            builder: (context, zoomLevelProvider, child) {
-              return Scaffold(
-                body: Material(
-                  child: Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      FullMap(),
-                      zoomLevelProvider.zoomLevel ? const LevelSelector() : Container(),
-                    ],
-                  ),
-                ),
-              );
-            }
-          )
-  );
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => VisibleGeodataProvider()),
+        ],
+        child: Consumer<VisibleGeodataProvider>(
+            builder: (context, levelsProvider, child) {
+          return Scaffold(
+            body: Material(
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  FullMap(),
+                  levelsProvider.hasCurrentLevel
+                      ? const LevelSelector()
+                      : Container(),
+                ],
+              ),
+            ),
+          );
+        }));
   }
 }

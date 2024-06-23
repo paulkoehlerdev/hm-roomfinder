@@ -1,41 +1,86 @@
 import 'package:flutter/material.dart';
+import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 
-class UpdateLevelProvider extends ChangeNotifier {
-  int currentLevel = 0;
-  List availableLevels = [];
+class VisibleGeodataProvider extends ChangeNotifier {
+  final List<int> _visibleBuildings = [];
+  final Map<int, Feature> _visibleLevels = {};
 
-  void updateLevel(int index) {
-    currentLevel = index;
-    notifyListeners();
-  }
+  final Map<int, int> _buildingLevels = {};
+  final Map<String, List<int>> _availableLevels = {};
+  String? _currentLevel;
 
-  void setAvailableLevels(List levels) {
-    // build a list of levels with the same name sorted after level_id and add it to availableLevels
-    // availableLevels = [[{eg_b0}, {eg_b1}], [{1og_b0}, {1og_b1}]]
-    availableLevels.clear();
-    levels.sort((a, b) => a['level_id'].compareTo(b['level_id']));
-    List includedLevels = [];
-    for (Map sourceLevel in levels) {
-      List sameLevel = [];
-      for (Map level in levels) {
-        if (!includedLevels.contains(level['level_id'])) {
-          if (level['level_name'] == sourceLevel['level_name']) {
-            sameLevel.add(level);
-            includedLevels.add(level['level_id']);
-          }
-        }
-      }
-      availableLevels.add(sameLevel);
+  List<int> get visibleBuildings => List.unmodifiable(_visibleBuildings);
+  List<int> get visibleLevels => List.unmodifiable(
+      _availableLevels[_currentLevel] ?? []);
+
+  List<String> get availableLevels => List.unmodifiable(_availableLevels.keys);
+
+  String? get currentLevel => _currentLevel;
+
+  bool get hasCurrentLevel => _currentLevel != null;
+
+  Feature? getVisibleLayerGeom(int layerId) => _visibleLevels[layerId];
+
+  void setCurrentLevel(String? level) {
+    if (level == _currentLevel) {
+      return;
     }
+
+    _currentLevel = level;
     notifyListeners();
   }
-}
 
-class ZoomLevelProvider extends ChangeNotifier {
-  bool zoomLevel = false;
+  void addVisibleLayer(String name, int layerId, int buildingId, Feature layer) {
+    if (!_availableLevels.containsKey(name)) {
+      _availableLevels[name] = [];
+    }
+    _availableLevels[name]!.add(layerId);
 
-  void updateZoomLevel(bool zoom) {
-    zoomLevel = zoom;
+    _buildingLevels[layerId] = buildingId;
+
+    _visibleLevels[layerId] = layer;
+    notifyListeners();
+  }
+
+  void removeVisibleLayer(int layerId) {
+    if (!_visibleLevels.containsKey(layerId)) {
+      return;
+    }
+
+    _visibleLevels.remove(layerId);
+    notifyListeners();
+  }
+
+
+  bool addVisibleBuilding(int buildingId) {
+    if (_visibleBuildings.contains(buildingId)) {
+      return false;
+    }
+
+    _visibleBuildings.add(buildingId);
+    notifyListeners();
+
+    return true;
+  }
+
+  void removeVisibleBuilding(int buildingId) {
+    if (!_visibleBuildings.contains(buildingId)) {
+      return;
+    }
+
+    final levelsToRemove = _buildingLevels.entries
+        .where((element) => element.value == buildingId)
+        .map((e) => e.key)
+        .toList();
+
+    _visibleLevels.removeWhere((key, value) => levelsToRemove.contains(key));
+
+    _availableLevels.forEach((key, value) => value.removeWhere((element) => levelsToRemove.contains(element)));
+    _availableLevels.removeWhere((key, value) => value.isEmpty);
+
+    _buildingLevels.removeWhere((key, value) => levelsToRemove.contains(key));
+
+    _visibleBuildings.remove(buildingId);
     notifyListeners();
   }
 }
