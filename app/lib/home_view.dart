@@ -1,10 +1,9 @@
 import 'package:app/components/search_bar_component.dart';
-import 'package:app/full_map_page.dart';
-import 'package:app/level_selector.dart';
+import 'package:app/components/full_map_page.dart';
+import 'package:app/components/level_selector.dart';
+import 'package:app/providers/visible_geodata_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'providers.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});

@@ -1,6 +1,6 @@
 import 'package:maplibre_gl/maplibre_gl.dart';
-import '../providers.dart';
 import '../api/json_extension.dart';
+import '../providers/visible_geodata_provider.dart';
 import 'auto_painter.dart';
   
   

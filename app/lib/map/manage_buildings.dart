@@ -1,8 +1,9 @@
+import 'package:app/util/hm_main_color.dart';
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import '../api/geodata.dart';
 import '../api/json_extension.dart';
-import '../providers.dart';
+import '../providers/visible_geodata_provider.dart';
 import 'bounds.dart';
 import 'auto_painter.dart';
 
@@ -13,8 +14,8 @@ class ManageBuildings extends AutoPainter<VisibleGeodataProvider>{
 
   ManageBuildings({required super.provider, required super.manager});
 
-  static const _roomFillStyle = FillLayerProperties(
-    fillColor: '#ff0000',
+  final _roomFillStyle = FillLayerProperties(
+    fillColor: const HMMainColor().toHexStringRGB(),
     fillOpacity: 1,
     fillOutlineColor: '#00000000',
   );
