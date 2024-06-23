@@ -15,18 +15,21 @@ class ManageRooms{
     mapController = controller;
   }
 
-  loadRooms(int levelId) async {
-    // load rooms from the server
-    var api = GeodataRepository(api: GeodataApiSdk());
-    var res = await api.roomGet(levelId);
+  loadRooms(List levelIds) async {
+    for (Map levelId in levelIds){
+      int levelIdInt = int.parse(levelId['level_id'].toString());
+      // load rooms from the server
+      var api = GeodataRepository(api: GeodataApiSdk());
+      var res = await api.roomGet(levelIdInt);
 
-    // del old rooms
-    dellAllRooms();
+      // del old rooms
+      dellAllRooms();
 
-    if (res.data != null){
-      //print(res.data!);
-      print('rooms_$levelId');
-      addLayers.addLayers('rooms_$levelId', GeojsonSourceProperties(data: res.data!.toJson()), mapController);
+      if (res.data != null){
+        //print(res.data!);
+        print('rooms_$levelId');
+        addLayers.addLayers('rooms_$levelId', GeojsonSourceProperties(data: res.data!.toJson()), mapController);
+      }
     }
   }
 
@@ -51,7 +54,7 @@ class ManageRooms{
   autoPaintRooms(UpdateLevelProvider updateLevelProvider){
     // load and paint rooms on the map based on the current level
     updateLevelProvider.addListener((){
-        loadRooms(updateLevelProvider.currentLevel); // get real level id?
+        loadRooms(updateLevelProvider.availableLevels[updateLevelProvider.currentLevel]);
     });
   }
 }

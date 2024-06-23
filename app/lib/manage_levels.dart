@@ -40,12 +40,16 @@ class ManageLevels {
         num levelId = element.properties['id']!.asNum;
         loadedLevels.add(id);
         levels.add({
-          'level': levelId,
+          'level_id': levelId,
           'building_id': id,
           'layer_id': 'level_${id}_$levelId',
           'data': element.toJson()
         });
-        availableLevels.add(levelId.toString());
+        availableLevels.add({
+          'level_name': element.properties['name']!.asString,
+          'level_id': levelId,
+          'building_id': id,
+        });
       });
     }
     return availableLevels;

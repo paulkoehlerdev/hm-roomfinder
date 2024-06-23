@@ -43,7 +43,7 @@ class _LevelSelectorState extends State<LevelSelector> {
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).colorScheme.background),
                         child: Center(
-                            child: Text(updateLevelProvider.availableLevels[index].toString(),
+                            child: Text(updateLevelProvider.availableLevels[index][0]['level_name'].toString(),
                                 style: TextStyle(
                                     color: updateLevelProvider.currentLevel ==
                                             index
