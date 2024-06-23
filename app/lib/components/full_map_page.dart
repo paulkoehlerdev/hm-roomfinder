@@ -2,6 +2,7 @@ import 'package:app/components/level_selector.dart';
 import 'package:app/map/debouncer.dart';
 import 'package:app/map/layer_manager.dart';
 import 'package:app/providers/visible_geodata_provider.dart';
+import 'package:app/util/set_userposition.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +36,8 @@ class FullMapState extends State<FullMap> {
 
   static const _levelZoomThreshold = 16.0;
 
+  SetUserposition userposition = SetUserposition();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +47,7 @@ class FullMapState extends State<FullMap> {
             const LevelSelector(),
             FloatingActionButton(
               onPressed: () {
-                // TODO: implement my location button
+                userposition.cameraToUserPosition();
               },
               child: const Icon(Icons.my_location),
             ),
@@ -53,7 +56,6 @@ class FullMapState extends State<FullMap> {
         body: MapLibreMap(
           tiltGesturesEnabled: false,
           myLocationEnabled: true,
-          //myLocationTrackingMode: MyLocationTrackingMode.trackingCompass,
           myLocationRenderMode: MyLocationRenderMode.compass,
           styleString: _styleUrl,
           initialCameraPosition: _initialCameraPosition,
@@ -90,10 +92,8 @@ class FullMapState extends State<FullMap> {
     });
 
     // zoom in on user's location
-    controller.requestMyLocationLatLng().then((value) => value != null
-        ? controller.animateCamera(CameraUpdate.newCameraPosition(
-            CameraPosition(target: value, zoom: 17.0)))
-        : null);
+    userposition.setController(controller);
+    userposition.cameraToUserPosition();
 
     final layerManager = LayerManager(mapController: controller);
     manageBuildings = ManageBuildings(
