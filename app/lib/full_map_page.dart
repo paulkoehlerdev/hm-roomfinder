@@ -2,11 +2,9 @@ import 'package:app/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:provider/provider.dart';
-import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 
-import 'api/geodata.dart';
-import 'api/json_extension.dart';
 import 'manage_levels.dart';
+import 'package:app/manage_buildings.dart';
 
 
 class FullMap extends StatefulWidget {
@@ -18,8 +16,9 @@ class FullMap extends StatefulWidget {
 
 class FullMapState extends State<FullMap> {
   MapLibreMapController? mapController;
-
+  List<Map<String, dynamic>> buildings = [];
   ManageLevels manageLevels = ManageLevels();
+  ManageBuildings manageBuildings = ManageBuildings();
 
   void cameraListener(controller, updateZoomLevelProvider, UpdateLevelProvider updateLevelProvider) {
     int oldTime = 0;
@@ -31,7 +30,7 @@ class FullMapState extends State<FullMap> {
         if (DateTime.now().millisecondsSinceEpoch - oldTime > timeThresholdMs) {
           // if zooming in/ zoomed in
           if (controller!.cameraPosition!.zoom > zoomThreshold) {
-            manageLevels.getIntersectingBuildings(controller!.cameraPosition!.target)
+            manageLevels.getIntersectingBuildings(controller!.cameraPosition!.target, buildings)
                 .then((newLayersInScreen) => {
                       // if new layers are in the screen
                       if (newLayersInScreen['new']!)
@@ -102,7 +101,7 @@ class FullMapState extends State<FullMap> {
                   ? controller.animateCamera(CameraUpdate.newCameraPosition(
                       CameraPosition(target: value, zoom: 17.0)))
                   : null);
-              manageLevels.loadBuildingLayer();
+              manageBuildings.loadBuildingLayer(controller).then((value) => buildings = value);
               manageLevels.autoPaint(updateLevelProvider);
             },
           ));

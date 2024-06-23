@@ -4,21 +4,16 @@ import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 import 'api/geodata.dart';
 import 'api/json_extension.dart';
 import 'providers.dart';
+import 'add_layers.dart';
 
 
-List<Map<String, dynamic>> buildings = [];
 List<Map<String, dynamic>> levels = [];
 List loadedLevels = [];
-
-const fillLayer = FillLayerProperties(
-  fillColor: '#ff0000',
-  fillOpacity: 0.5,
-  fillOutlineColor: '#000000',
-);
   
   
 class ManageLevels {
   MapLibreMapController? mapController;
+  AddLayers addLayers = AddLayers();
   ManageLevels({this.mapController});
 
   void setMapController(MapLibreMapController controller) {
@@ -29,8 +24,8 @@ class ManageLevels {
     await delAllLevel();
     for (Map level in levels) {
       if (level['level'] == level) {
-        addLayers(
-            level['layer_id'], GeojsonSourceProperties(data: level['data']));
+        addLayers.addLayers(
+            level['layer_id'], GeojsonSourceProperties(data: level['data']), mapController);
       }
     }
   }
@@ -94,7 +89,7 @@ class ManageLevels {
     return false;
   }
 
-  Future<Map<String, dynamic>> getIntersectingBuildings(LatLng cameraPosition) async {
+  Future<Map<String, dynamic>> getIntersectingBuildings(LatLng cameraPosition, List buildings) async {
     bool newLayersInScreen = false;
     bool layersInScreen = false;
     Set availableLevels = {};
@@ -114,20 +109,6 @@ class ManageLevels {
       }
     }
     return {'new': newLayersInScreen, 'total': layersInScreen, 'availableLevels': availableLevels};
-  }
-
-  void addLayers(String layerId, GeojsonSourceProperties geojsonSource) {
-    String sourceId = layerId;
-    mapController!.getSourceIds().then((sourceIds) {
-      if (!sourceIds.contains(sourceId)) {
-        mapController!.addSource(sourceId, geojsonSource);
-      }
-    });
-    mapController!.getLayerIds().then((layerIds) {
-      if (!layerIds.contains(layerId)) {
-        mapController!.addFillLayer(layerId, layerId, fillLayer);
-      }
-    });
   }
 
   Future<void> delAllLevel() async {
@@ -150,24 +131,6 @@ class ManageLevels {
         }
       }
     });
-  }
-
-  Future<void> loadBuildingLayer() async {
-    var api = GeodataRepository(api: GeodataApiSdk());
-
-    var res = await api.buildingGet();
-
-    if (res.data != null) {
-      // adding the buildings and bounds to the list
-      for (var feature in res.data!.features) {
-        buildings.add({
-          'id': feature.properties['id']!.asNum,
-          'bounds': feature.bound.coordinates.asList()
-        });
-      }
-      // displaying the buildings
-      addLayers('buildings', GeojsonSourceProperties(data: res.data!.toJson()));
-    }
   }
 
   void autoPaint(UpdateLevelProvider updateLevelProvider) {
