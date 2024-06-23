@@ -20,10 +20,10 @@ class ManageLevels {
     mapController = controller;
   }
 
-  paintLevel(int level) async {
+  paintLevel(int levelId) async {
     await delAllLevel();
     for (Map level in levels) {
-      if (level['level'] == level) {
+      if (level['level_id'] == levelId) {
         addLayers.addLayers(
             level['layer_id'], GeojsonSourceProperties(data: level['data']), mapController);
       }
@@ -139,7 +139,12 @@ class ManageLevels {
 
   void autoPaint(UpdateLevelProvider updateLevelProvider) {
     updateLevelProvider.addListener(() {
-      paintLevel(updateLevelProvider.currentLevel);
+      // load and paint levels on the map based on the current level
+      List neededLevels = updateLevelProvider.availableLevels[updateLevelProvider.currentLevel];
+      // paint the needed levels
+      for (Map level in neededLevels) {
+        paintLevel(level['level_id']);
+      }
     });
   }
 
