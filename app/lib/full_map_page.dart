@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'manage_levels.dart';
 import 'package:app/manage_buildings.dart';
+import 'package:app/manage_rooms.dart';
 
 
 class FullMap extends StatefulWidget {
@@ -19,6 +20,7 @@ class FullMapState extends State<FullMap> {
   List<Map<String, dynamic>> buildings = [];
   ManageLevels manageLevels = ManageLevels();
   ManageBuildings manageBuildings = ManageBuildings();
+  ManageRooms manageRooms = ManageRooms();
 
   void cameraListener(controller, updateZoomLevelProvider, UpdateLevelProvider updateLevelProvider) {
     int oldTime = 0;
@@ -96,6 +98,7 @@ class FullMapState extends State<FullMap> {
             onMapCreated: (controller) {
               mapController = controller;
               manageLevels.setMapController(controller);
+              manageRooms.setMapController(controller);
               cameraListener(controller, updateZoomLevelProvider, updateLevelProvider);
               controller.requestMyLocationLatLng().then((value) => value != null
                   ? controller.animateCamera(CameraUpdate.newCameraPosition(
@@ -103,6 +106,7 @@ class FullMapState extends State<FullMap> {
                   : null);
               manageBuildings.loadBuildingLayer(controller).then((value) => buildings = value);
               manageLevels.autoPaint(updateLevelProvider);
+              manageRooms.autoPaintRooms(updateLevelProvider);
             },
           ));
     });
