@@ -1,5 +1,6 @@
 import 'package:app/components/flutter_map_page/building_layer.dart';
 import 'package:app/components/flutter_map_page/level_layer.dart';
+import 'package:app/components/flutter_map_page/room_name_layer.dart';
 import 'package:app/components/level_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -47,6 +48,7 @@ class FullMapState extends State<FullMap> {
           const BuildingLayer(),
           const LevelLayer(),
           const RoomLayer(),
+          const RoomNameLayer(),
         ],
       ),
     );

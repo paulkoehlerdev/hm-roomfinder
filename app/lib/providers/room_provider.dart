@@ -1,8 +1,10 @@
+import 'package:app/api/bounds_extension.dart';
 import 'package:app/api/geodata.dart';
 import 'package:app/api/properties_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
+import 'package:latlong2/latlong.dart';
 
 class RoomProvider extends ChangeNotifier {
   FeatureCollection? _currentRooms;
@@ -15,15 +17,14 @@ class RoomProvider extends ChangeNotifier {
     return _currentRooms!.features.map((feature) => feature.polygon).toList();
   }
 
-  Map<String, int> get roomNames {
+  Map<String, LatLng> get roomNames {
     if (_currentRooms == null) {
       return {};
     }
 
     return Map.fromEntries(_currentRooms!.features
-        .where((feature) => feature.id == _currentLevelId)
         .map((feature) {
-      return MapEntry(feature.name, feature.id);
+      return MapEntry(feature.name, feature.bounds!.center);
     }));
   }
 
