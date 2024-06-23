@@ -1,3 +1,5 @@
+import 'package:app/api/bounds_extension.dart';
+import 'package:app/map/layer_manager.dart';
 import 'package:app/util/hm_main_color.dart';
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -7,25 +9,18 @@ import '../providers/visible_geodata_provider.dart';
 import 'bounds.dart';
 import 'auto_painter.dart';
 
-
-class ManageBuildings extends AutoPainter<VisibleGeodataProvider>{
-
+class ManageBuildings extends AutoPainter<VisibleGeodataProvider> {
   final Map<int, LatLngBounds> _buildingBounds = {};
 
   ManageBuildings({required super.provider, required super.manager});
-
-  final _roomFillStyle = FillLayerProperties(
-    fillColor: const HMMainColor().toHexStringRGB(),
-    fillOpacity: 1,
-    fillOutlineColor: '#00000000',
-  );
 
   updateCamera(LatLngBounds bounds) {
     for (var building in _buildingBounds.entries) {
       if (bounds.intersects(building.value)) {
         if (!provider.addVisibleBuilding(building.key)) {
           continue;
-        };
+        }
+        ;
 
         _handleLoadingLevels(building.key);
       } else {
@@ -54,6 +49,11 @@ class ManageBuildings extends AutoPainter<VisibleGeodataProvider>{
 
   @override
   autoPaint(VisibleGeodataProvider provider) async {
+    if (provider.hasCurrentLevel) {
+      manager.setLayerInvisible(LayerType.building);
+      return;
+    }
+
     var api = GeodataRepository(api: GeodataApiSdk());
 
     var resBuildings = await api.buildingGet();
@@ -63,16 +63,11 @@ class ManageBuildings extends AutoPainter<VisibleGeodataProvider>{
     }
 
     for (var feature in resBuildings.data!.features) {
-      final buildingBounds = feature.bound.coordinates.asList();
-      _buildingBounds[feature.properties['id']!.asNum.toInt()] = LatLngBounds(
-          southwest: LatLng(buildingBounds[0][0][1], buildingBounds[0][0][0]),
-          northeast: LatLng(buildingBounds[0][2][1], buildingBounds[0][2][0]));
+      _buildingBounds[feature.properties['id']!.asNum.toInt()] =
+          feature.bounds!;
     }
 
-    manager.removeLayer('buildings');
-
-    if (!provider.hasCurrentLevel) {
-      manager.addGeoJsonLayer('buildings', resBuildings.data!.toJson(), _roomFillStyle);
-    }
+    manager.setLayerVisible(LayerType.building);
+    manager.setLayer(LayerType.building, resBuildings.data!.toJson());
   }
 }

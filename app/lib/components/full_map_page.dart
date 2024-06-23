@@ -1,6 +1,7 @@
 import 'package:app/components/level_selector.dart';
 import 'package:app/map/debouncer.dart';
 import 'package:app/map/layer_manager.dart';
+import 'package:app/providers/seach_bar_state_provider.dart';
 import 'package:app/providers/visible_geodata_provider.dart';
 import 'package:app/util/set_userposition.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:app/map/manage_buildings.dart';
 
 import '../map/manage_levels.dart';
 import '../map/manage_rooms.dart';
+import '../map/manage_search_results.dart';
 
 class FullMap extends StatefulWidget {
   const FullMap({super.key});
@@ -23,6 +25,7 @@ class FullMapState extends State<FullMap> {
   late final ManageBuildings manageBuildings;
   late final ManageLevels manageLevels;
   late final ManageRooms manageRooms;
+  late final ManageSearchResults manageSearchResults;
 
   static const _styleUrl =
       'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json';
@@ -104,6 +107,9 @@ class FullMapState extends State<FullMap> {
         manager: layerManager);
     manageRooms = ManageRooms(
         provider: Provider.of<VisibleGeodataProvider>(context, listen: false),
+        manager: layerManager);
+    manageSearchResults = ManageSearchResults(
+        provider: Provider.of<SearchBarStateProvider>(context, listen: false),
         manager: layerManager);
   }
 }
