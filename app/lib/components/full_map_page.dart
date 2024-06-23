@@ -1,3 +1,4 @@
+import 'package:app/components/level_selector.dart';
 import 'package:app/map/debouncer.dart';
 import 'package:app/map/layer_manager.dart';
 import 'package:app/providers/visible_geodata_provider.dart';
@@ -37,11 +38,17 @@ class FullMapState extends State<FullMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // TODO: implement my location button
-          },
-          child: const Icon(Icons.my_location),
+        floatingActionButton: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LevelSelector(),
+            FloatingActionButton(
+              onPressed: () {
+                // TODO: implement my location button
+              },
+              child: const Icon(Icons.my_location),
+            ),
+          ],
         ),
         body: MapLibreMap(
           tiltGesturesEnabled: false,

@@ -18,7 +18,7 @@ class _LevelSelectorState extends State<LevelSelector> {
     return Consumer<VisibleGeodataProvider>(
         builder: (context, levelProvider, child) {
           return Padding(
-            padding: EdgeInsetsDirectional.symmetric(vertical: height * 0.06),
+            padding: const EdgeInsets.only(right: 12.0),
             child: Container(
               width: width * min(0.1 * levelProvider.availableLevels.length, 0.5),
               height: height * 0.06,
