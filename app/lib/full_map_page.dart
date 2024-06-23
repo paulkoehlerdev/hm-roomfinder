@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:provider/provider.dart';
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
-import 'dart:math';
-import 'dart:convert';
 
 import 'api/geodata.dart';
 import 'api/json_extension.dart';
@@ -28,11 +26,6 @@ class FullMap extends StatefulWidget {
 
 class FullMapState extends State<FullMap> {
   MapLibreMapController? mapController;
-
-  double pythLatLong(pose1, pose2) {
-    return sqrt(pow(pose1.latitude - pose2.latitude, 2) +
-        pow(pose1.longitude - pose2.longitude, 2));
-  }
 
   void cameraListener(controller, updateZoomLevelProvider) {
     int oldTime = 0;
