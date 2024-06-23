@@ -15,8 +15,17 @@ extension JsonFeature on Feature {
   Map<String, dynamic> toJson() {
     return {
       'type': "Feature",
-      'properties': properties.map((key, value) => MapEntry(key, value?.value)).toMap() as Map<String, dynamic>,
+      'properties': properties
+          .map((key, value) => MapEntry(key, value?.value))
+          .toMap() as Map<String, dynamic>,
       'geometry': geometry.toJson(),
+    };
+  }
+
+  Map<String, dynamic> toFeatureCollectionJson() {
+    return {
+      'type': "FeatureCollection",
+      'features': [toJson()],
     };
   }
 }
@@ -44,7 +53,9 @@ extension JsonGeometryPolygon on GeometryPolygon {
   Map<String, dynamic> toJson() {
     return {
       'type': "Polygon",
-      'coordinates': coordinates.map((p0) => p0.map((p0) => p0.toList()).toList()).toList(),
+      'coordinates': coordinates
+          .map((p0) => p0.map((p0) => p0.toList()).toList())
+          .toList(),
     };
   }
 }

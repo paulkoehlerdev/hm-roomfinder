@@ -1,26 +1,14 @@
+import 'package:app/map/debouncer.dart';
+import 'package:app/map/layer_manager.dart';
+import 'package:app/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
-import 'dart:math';
+import 'package:provider/provider.dart';
 
-Map<String,dynamic> geojson = {
-"type": "FeatureCollection",
-"name": "example_geojson",
-"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-"features": [
-{ "type": "Feature", "properties": { "pk": 1, "name": "F0.02", "storey_id": 1 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 11.568194183434708, 48.142868235160421 ], [ 11.568301598509459, 48.142837212756163 ], [ 11.568232379769954, 48.142731154911601 ], [ 11.568124770805175, 48.142762565095914 ], [ 11.568194183434708, 48.142868235160421 ] ] ] } },
-{ "type": "Feature", "properties": { "pk": 2, "name": "F0.01a", "storey_id": 1 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 11.568193989544682, 48.142868429050452 ], [ 11.568301210729405, 48.142837406646187 ], [ 11.568320793622096, 48.142869204610555 ], [ 11.568290934557995, 48.142877541881703 ], [ 11.568292485678208, 48.142881419682233 ], [ 11.568216868567823, 48.142902941475192 ], [ 11.568193989544682, 48.142868429050452 ] ] ] } },
-]
-};
+import 'package:app/map/manage_buildings.dart';
 
-final geojsonSource = GeojsonSourceProperties(
-  data: geojson,
-);
-
-const fillLayer = FillLayerProperties(
-  fillColor: '#ff0000',
-  fillOpacity: 0.5,
-  fillOutlineColor: '#000000',
-);
+import 'map/manage_levels.dart';
+import 'map/manage_rooms.dart';
 
 class FullMap extends StatefulWidget {
   const FullMap({super.key});
@@ -30,52 +18,85 @@ class FullMap extends StatefulWidget {
 }
 
 class FullMapState extends State<FullMap> {
-  MapLibreMapController? mapController;
+  late final ManageBuildings manageBuildings;
+  late final ManageLevels manageLevels;
+  late final ManageRooms manageRooms;
 
-double pythLatLong(pose1, pose2) {
-  return sqrt(pow(pose1.latitude - pose2.latitude, 2) + pow(pose1.longitude - pose2.longitude, 2));
-}
+  static const _styleUrl =
+      'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json';
 
-void cameraListener(controller) {
-    LatLng oldCameraPose = LatLng(0.0, 0.0);
-    controller!.addListener(() {
-      if (controller!.cameraPosition != null){
-      if (pythLatLong(oldCameraPose, controller!.cameraPosition!.target) > 0.1 && controller!.cameraPosition!.zoom > 12.0){
-        oldCameraPose = controller!.cameraPosition!.target;
-        print('Camera moved to pose ${controller!.cameraPosition!.target}');
-      }}
-    });
-}
+  // static const _initialCameraPosition = CameraPosition(
+  //     bearing: 0.0, target: LatLng(51.8, 9.7), tilt: 0.0, zoom: 5.5);
+
+  static const _initialCameraPosition = CameraPosition(bearing: -0.0, target: LatLng(48.14312046865786, 11.56879682080509), tilt: 0.0, zoom: 16.681204475015875);
+
+  static const _cameraDebounceMs = 100;
+
+  static const _levelZoomThreshold = 16.0;
 
   @override
   Widget build(BuildContext context) {
-    const styleUrl =
-        'https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json';
-
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            mapController!.requestMyLocationLatLng().then((value)
-              => value != null ? mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: value, zoom: 17.0))) : null);
+            // TODO: implement my location button
           },
           child: const Icon(Icons.my_location),
         ),
         body: MapLibreMap(
-      myLocationEnabled: true,
-      myLocationTrackingMode: MyLocationTrackingMode.trackingCompass,
-      myLocationRenderMode: MyLocationRenderMode.compass,
-      styleString: styleUrl,
-      initialCameraPosition: const CameraPosition(bearing: 0.0, target: LatLng(51.8, 9.7), tilt: 0.0, zoom: 5.5),
-      trackCameraPosition: true,
-      onMapCreated: (controller) {
-        mapController = controller;
-        cameraListener(controller);
-            controller.requestMyLocationLatLng().then((value)
-              => value != null ? controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: value, zoom: 17.0))) : null);
-            //adding the example geojson
-            controller.addSource('example_geojson', geojsonSource);
-            controller.addFillLayer('example_geojson', 'example_geojson', fillLayer);
-          },
-    ));
+          tiltGesturesEnabled: false,
+          myLocationEnabled: true,
+          //myLocationTrackingMode: MyLocationTrackingMode.trackingCompass,
+          myLocationRenderMode: MyLocationRenderMode.compass,
+          styleString: _styleUrl,
+          initialCameraPosition: _initialCameraPosition,
+          trackCameraPosition: true,
+          onMapCreated: _onMapCreated,
+        ));
+  }
+
+  _cameraUpdater(CameraPosition position, LatLngBounds bounds) {
+    manageBuildings.updateCamera(bounds);
+
+    final levelProvider =
+        Provider.of<VisibleGeodataProvider>(context, listen: false);
+
+    if (position.zoom < _levelZoomThreshold) {
+      levelProvider.setCurrentLevel(null);
+      return;
+    }
+
+    if (levelProvider.currentLevel == null) {
+      levelProvider.setCurrentLevel("EG");
+    }
+  }
+
+  _onMapCreated(MapLibreMapController controller) {
+    final cameraDebouncer = Debouncer(milliseconds: _cameraDebounceMs);
+
+    controller.addListener(() {
+      if (controller.cameraPosition != null) {
+        cameraDebouncer.debounce(() async {
+          _cameraUpdater(controller.cameraPosition!, await controller.getVisibleRegion());
+        });
+      }
+    });
+
+    // zoom in on user's location
+    controller.requestMyLocationLatLng().then((value) => value != null
+        ? controller.animateCamera(CameraUpdate.newCameraPosition(
+            CameraPosition(target: value, zoom: 17.0)))
+        : null);
+
+    final layerManager = LayerManager(mapController: controller);
+    manageBuildings = ManageBuildings(
+        provider: Provider.of<VisibleGeodataProvider>(context, listen: false),
+        manager: layerManager);
+    manageLevels = ManageLevels(
+        provider: Provider.of<VisibleGeodataProvider>(context, listen: false),
+        manager: layerManager);
+    manageRooms = ManageRooms(
+        provider: Provider.of<VisibleGeodataProvider>(context, listen: false),
+        manager: layerManager);
   }
 }
