@@ -89,9 +89,9 @@ func (b BulkDataRepositoryImpl) GetAllDocuments(ctx context.Context) ([]document
 
 		out = append(out, document.Document{
 			Data: map[string]interface{}{
-				"Name": row.Name,
-				"Type": row.Type,
-				"Attr": json.RawMessage(row.Attr),
+				"name": row.Name,
+				"type": row.Type,
+				"attr": json.RawMessage(row.Attr),
 			},
 			Geo: document.GeoFromGeojsonPoint(point),
 			ID:  *row.DocID,

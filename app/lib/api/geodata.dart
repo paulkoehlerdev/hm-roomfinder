@@ -20,7 +20,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
 class GeodataRepository {
   final GeodataApiSdk api;
 
-  const GeodataRepository({required this.api});
+  GeodataRepository({GeodataApiSdk? api}) : api = api ?? GeodataApiSdk();
 
   Future<Response<FeatureCollection>> buildingGet() async {
     return await api.getDefaultApi().buildingGet();
@@ -36,5 +36,17 @@ class GeodataRepository {
 
   Future<Response<FeatureCollection>> doorGet(int levelId) async {
     return await api.getDefaultApi().doorGet(levelId: levelId);
+  }
+
+  Future<Response<FeatureCollection>> search(
+    String query, {
+    double? lat,
+    double? lon,
+  }) async {
+    return await api.getDefaultApi().searchGet(
+          q: query,
+          lat: lat,
+          lon: lon,
+        );
   }
 }

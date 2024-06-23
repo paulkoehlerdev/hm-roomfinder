@@ -1,3 +1,4 @@
+import 'package:app/components/search_bar_component.dart';
 import 'package:app/full_map_page.dart';
 import 'package:app/level_selector.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class HomeView extends StatelessWidget {
                   levelsProvider.hasCurrentLevel
                       ? const LevelSelector()
                       : Container(),
+                  SearchBarComponent(),
                 ],
               ),
             ),
