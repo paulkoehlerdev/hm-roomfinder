@@ -11,12 +11,12 @@ class AddLayers {
     String sourceId = layerId;
     mapController!.getSourceIds().then((sourceIds) {
       if (!sourceIds.contains(sourceId)) {
-        mapController!.addSource(sourceId, geojsonSource);
+        mapController.addSource(sourceId, geojsonSource);
       }
     });
-    mapController!.getLayerIds().then((layerIds) {
+    mapController.getLayerIds().then((layerIds) {
       if (!layerIds.contains(layerId)) {
-        mapController!.addFillLayer(layerId, layerId, fillLayer);
+        mapController.addFillLayer(layerId, layerId, fillLayer);
       }
     });
   }
