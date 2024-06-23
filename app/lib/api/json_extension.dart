@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 
 extension JsonFeatureCollection on FeatureCollection {
@@ -26,6 +24,15 @@ extension JsonFeature on Feature {
     return {
       'type': "FeatureCollection",
       'features': [toJson()],
+    };
+  }
+}
+
+extension JsonFeatureList on List<Feature> {
+  Map<String, dynamic> toFeatureCollectionJson() {
+    return {
+      'type': "FeatureCollection",
+      'features': map((e) => e.toJson()).toList(),
     };
   }
 }
