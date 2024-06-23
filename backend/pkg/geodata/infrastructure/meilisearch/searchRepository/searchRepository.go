@@ -121,6 +121,23 @@ func (s SearchRepositoryImpl) getIDsFromSearchResults(res *meilisearch.SearchRes
 func (s SearchRepositoryImpl) Insert(documents []document.Document) error {
 	s.logger.Info("Reindexing documents into Meilisearch", "amount", len(documents))
 
+	info, err := s.index.DeleteAllDocuments()
+	if err != nil {
+		s.logger.Error(err.Error())
+		return err
+	}
+
+	taskInfo, err := s.client.WaitForTask(info.TaskUID)
+	if err != nil {
+		s.logger.Error(err.Error())
+		return err
+	}
+
+	if taskInfo.Status != meilisearch.TaskStatusSucceeded {
+		s.logger.Error(fmt.Sprintf("task status is %s", taskInfo.Status))
+		return fmt.Errorf("task status is %s", taskInfo.Status)
+	}
+
 	documentsArr := make([]map[string]interface{}, 0, len(documents))
 	for _, document := range documents {
 		doc := make(map[string]interface{})
@@ -131,12 +148,12 @@ func (s SearchRepositoryImpl) Insert(documents []document.Document) error {
 		documentsArr = append(documentsArr, doc)
 	}
 
-	info, err := s.index.AddDocuments(documentsArr)
+	info, err = s.index.AddDocuments(documentsArr)
 	if err != nil {
 		return err
 	}
 
-	taskInfo, err := s.client.WaitForTask(info.TaskUID)
+	taskInfo, err = s.client.WaitForTask(info.TaskUID)
 	if err != nil {
 		return err
 	}
