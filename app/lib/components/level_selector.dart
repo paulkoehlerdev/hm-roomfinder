@@ -1,8 +1,7 @@
+import 'package:app/providers/visible_geodata_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
-
-import 'providers.dart';
 
 class LevelSelector extends StatefulWidget {
   const LevelSelector({super.key});

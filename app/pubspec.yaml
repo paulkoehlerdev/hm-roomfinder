@@ -15,6 +15,7 @@ dependencies:
   maplibre_gl: ^0.20.0
   location: ^6.0.2
   openapi_generator_annotations: ^5.0.2
+  flutter_svg: ^2.0.10+1
 
   geodata_api_sdk:
     path: ../geodata_api_sdk
@@ -29,3 +30,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/logo.svg

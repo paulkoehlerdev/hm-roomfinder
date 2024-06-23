@@ -19,3 +19,14 @@ database {
   password = "password"
   database = "hmroomfinder"
 }
+
+search_database {
+  host = "http://hm_roomfinder_geodata_meilisearch:7700"
+  key = "hmroomdfindermasterkey"
+  index = "hmroomfinder"
+  res_limit = 10
+}
+
+metrics {
+  bind = "0.0.0.0:48080"
+}

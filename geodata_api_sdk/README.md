@@ -66,7 +66,9 @@ Class | Method | HTTP request | Description
 [*DefaultApi*](doc/DefaultApi.md) | [**buildingGet**](doc/DefaultApi.md#buildingget) | **GET** /building | Get Buildings
 [*DefaultApi*](doc/DefaultApi.md) | [**doorGet**](doc/DefaultApi.md#doorget) | **GET** /door | Get Doors
 [*DefaultApi*](doc/DefaultApi.md) | [**levelGet**](doc/DefaultApi.md#levelget) | **GET** /level | Get Levels
+[*DefaultApi*](doc/DefaultApi.md) | [**reindexGet**](doc/DefaultApi.md#reindexget) | **GET** /reindex | Reindex the Search
 [*DefaultApi*](doc/DefaultApi.md) | [**roomGet**](doc/DefaultApi.md#roomget) | **GET** /room | Get Rooms
+[*DefaultApi*](doc/DefaultApi.md) | [**searchGet**](doc/DefaultApi.md#searchget) | **GET** /search | Search
 
 
 ## Documentation For Models

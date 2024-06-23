@@ -1,10 +1,10 @@
 import 'package:app/map/auto_painter.dart';
-import 'package:app/providers.dart';
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../api/geodata.dart';
 import '../api/json_extension.dart';
+import '../providers/visible_geodata_provider.dart';
 
 
 class ManageRooms extends AutoPainter<VisibleGeodataProvider> {

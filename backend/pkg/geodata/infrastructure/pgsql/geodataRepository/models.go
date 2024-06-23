@@ -5,10 +5,15 @@
 package geodataRepository
 
 type Building struct {
-	ID   int64       `json:"id"`
-	Name string      `json:"name"`
-	Attr []byte      `json:"attr"`
-	Geom interface{} `json:"geom"`
+	ID    int64       `json:"id"`
+	Name  string      `json:"name"`
+	Attr  []byte      `json:"attr"`
+	Geom  interface{} `json:"geom"`
+	DocID *int64      `json:"docId"`
+}
+
+type DocumentIndex struct {
+	ID int64 `json:"id"`
 }
 
 type Door struct {
@@ -25,6 +30,7 @@ type Level struct {
 	Name       string      `json:"name"`
 	Attr       []byte      `json:"attr"`
 	Geom       interface{} `json:"geom"`
+	DocID      *int64      `json:"docId"`
 }
 
 type Room struct {
@@ -33,4 +39,5 @@ type Room struct {
 	Name    string      `json:"name"`
 	Attr    []byte      `json:"attr"`
 	Geom    interface{} `json:"geom"`
+	DocID   *int64      `json:"docId"`
 }

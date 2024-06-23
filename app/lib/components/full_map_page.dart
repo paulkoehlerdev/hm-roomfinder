@@ -1,14 +1,14 @@
 import 'package:app/map/debouncer.dart';
 import 'package:app/map/layer_manager.dart';
-import 'package:app/providers.dart';
+import 'package:app/providers/visible_geodata_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app/map/manage_buildings.dart';
 
-import 'map/manage_levels.dart';
-import 'map/manage_rooms.dart';
+import '../map/manage_levels.dart';
+import '../map/manage_rooms.dart';
 
 class FullMap extends StatefulWidget {
   const FullMap({super.key});

@@ -1,5 +1,7 @@
 import 'package:app/home_view.dart';
-import 'package:app/location_permission_requester.dart';
+import 'package:app/providers/provider_initializer_component.dart';
+import 'package:app/util/hm_main_color.dart';
+import 'package:app/util/location_permission_requester.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -16,16 +18,23 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const HMMainColor(),
+        ),
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
-        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const HMMainColor(),
+          brightness: Brightness.dark,
+        ),
       ),
       themeMode: ThemeMode.system,
       home: const LocationPermissonRequester(
-        child: HomeView(),
+        child: ProviderInitializerComponent(
+          child: HomeView(),
+        ),
       ),
     );
   }

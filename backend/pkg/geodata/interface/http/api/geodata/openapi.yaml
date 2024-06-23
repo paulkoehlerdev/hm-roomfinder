@@ -65,6 +65,40 @@ paths:
           "$ref": "#/components/responses/FeatureCollection200"
         '400':
           "$ref": "#/components/responses/BadRequest400"
+
+  "/reindex":
+    get:
+      summary: Reindex the Search
+      description: Reindexes the search functionality
+      responses:
+        '200':
+          description: OK Response
+
+  "/search":
+    get:
+      summary: Search
+      description: Make a search
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          required: true
+        - name: lat
+          in: query
+          schema:
+            type: number
+            format: double
+          required: false
+        - name: lon
+          in: query
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          "$ref": "#/components/responses/FeatureCollection200"
+
 components:
   responses:
     BadRequest400:

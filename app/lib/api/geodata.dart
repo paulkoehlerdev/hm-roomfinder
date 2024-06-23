@@ -1,4 +1,6 @@
-// Openapi Generator last run: : 2024-06-22T12:54:52.600562
+// Openapi Generator last run: : 2024-06-22T22:09:26.118161
+
+// flutter pub run build_runner build --delete-conflicting-outputs
 
 import 'package:dio/src/response.dart';
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
@@ -18,7 +20,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
 class GeodataRepository {
   final GeodataApiSdk api;
 
-  const GeodataRepository({required this.api});
+  GeodataRepository({GeodataApiSdk? api}) : api = api ?? GeodataApiSdk();
 
   Future<Response<FeatureCollection>> buildingGet() async {
     return await api.getDefaultApi().buildingGet();
@@ -34,5 +36,17 @@ class GeodataRepository {
 
   Future<Response<FeatureCollection>> doorGet(int levelId) async {
     return await api.getDefaultApi().doorGet(levelId: levelId);
+  }
+
+  Future<Response<FeatureCollection>> search(
+    String query, {
+    double? lat,
+    double? lon,
+  }) async {
+    return await api.getDefaultApi().searchGet(
+          q: query,
+          lat: lat,
+          lon: lon,
+        );
   }
 }
