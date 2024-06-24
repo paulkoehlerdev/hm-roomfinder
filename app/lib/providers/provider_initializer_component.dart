@@ -1,5 +1,6 @@
 import 'package:app/providers/building_provider.dart';
 import 'package:app/providers/level_provider.dart';
+import 'package:app/providers/polygon_touch_provider.dart';
 import 'package:app/providers/room_provider.dart';
 import 'package:app/providers/seach_bar_state_provider.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class ProviderInitializerComponent extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => BuildingProvider()),
         ChangeNotifierProvider(create: (context) => LevelProvider()),
         ChangeNotifierProvider(create: (context) => RoomProvider()),
+        ChangeNotifierProvider(create: (context) => PolygonTouchProvider()),
       ],
       child: child,
     );

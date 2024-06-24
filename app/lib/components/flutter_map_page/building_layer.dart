@@ -1,5 +1,7 @@
+import 'package:app/components/flutter_map_page/touchable_polygon_layer.dart';
 import 'package:app/providers/building_provider.dart';
 import 'package:app/providers/level_provider.dart';
+import 'package:app/providers/polygon_touch_provider.dart';
 import 'package:app/util/hm_main_color.dart';
 import 'package:app/util/polygon_style_extension.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,7 +47,13 @@ class BuildingLayer extends StatelessWidget {
 
     return Consumer<BuildingProvider>(
       builder: (BuildContext context, BuildingProvider value, Widget? child) {
-        return PolygonLayer(polygons: value.polygons.withStyle(_polygonStyle));
+        return TouchablePolygonLayer(
+          polygons: value.polygons.withStyle(_polygonStyle),
+          onTap: (value) {
+            Provider.of<PolygonTouchProvider>(context, listen: false).value =
+                value;
+          },
+        );
       },
     );
   }

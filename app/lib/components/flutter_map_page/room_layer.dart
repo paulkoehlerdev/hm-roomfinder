@@ -1,25 +1,39 @@
-import 'package:app/providers/level_provider.dart';
+import 'package:app/components/flutter_map_page/touchable_polygon_layer.dart';
 import 'package:app/providers/room_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
+import '../../providers/polygon_touch_provider.dart';
 import '../../util/polygon_style_extension.dart';
 
 class RoomLayer extends StatelessWidget {
   const RoomLayer({super.key});
 
-  static final _polygonStyle = PolygonStyle(
-    color: Colors.grey,
-    borderStrokeWidth: 2.0,
-    borderColor: Colors.grey.shade800,
-  );
+  static _polygonStyle(ThemeData theme) => PolygonStyle(
+        color: theme.colorScheme.primaryContainer,
+        borderStrokeWidth: 1.0,
+        borderColor: theme.colorScheme.onPrimaryContainer,
+        labelStyle: TextStyle(
+          color: theme.colorScheme.onPrimaryContainer,
+          fontSize: 10,
+        ),
+        labelPlacement: PolygonLabelPlacement.polylabel,
+        label: true,
+        rotateLabel: true,
+      );
 
   @override
   Widget build(BuildContext context) {
     return Consumer<RoomProvider>(
       builder: (BuildContext context, RoomProvider value, Widget? child) {
-        return PolygonLayer(polygons: value.polygons.withStyle(_polygonStyle));
+        return TouchablePolygonLayer(
+          polygons: value.polygons.withStyle(_polygonStyle(Theme.of(context))),
+          onTap: (value) {
+            Provider.of<PolygonTouchProvider>(context, listen: false).value =
+                value;
+          },
+        );
       },
     );
   }

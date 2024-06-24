@@ -1,5 +1,7 @@
+import 'package:app/api/properties_extension.dart';
 import 'package:app/components/search_bar/search_bar_suggestions_component_builder.dart';
 import 'package:app/components/search_bar/search_input_component_builder.dart';
+import 'package:app/providers/polygon_touch_provider.dart';
 import 'package:app/providers/seach_bar_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
@@ -22,9 +24,22 @@ class _SearchBarComponentState extends State<SearchBarComponent> {
     }
   }
 
+  _handlePolygonTap() {
+    final polygonTouchProvider = Provider.of<PolygonTouchProvider>(context, listen: false);
+    final searchStateProvider = Provider.of<SearchBarStateProvider>(context, listen: false);
+
+    if (polygonTouchProvider.feature != null) {
+      searchStateProvider.setSelectedFeature(polygonTouchProvider.feature!);
+      _searchController.text = polygonTouchProvider.feature!.name;
+    } else {
+      searchStateProvider.setSelectedFeature(null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Provider.of<SearchBarStateProvider>(context, listen: true).addListener(_resetSearch);
+    Provider.of<PolygonTouchProvider>(context, listen: true).addListener(_handlePolygonTap);
 
     return SafeArea(
       child: Align(

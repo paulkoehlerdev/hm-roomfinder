@@ -1,14 +1,13 @@
 import 'package:app/components/flutter_map_page/building_layer.dart';
 import 'package:app/components/flutter_map_page/level_layer.dart';
-import 'package:app/components/flutter_map_page/room_name_layer.dart';
 import 'package:app/components/level_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'flutter_map_page/room_layer.dart';
 import 'flutter_map_page/search_bar_layer.dart';
-
 
 class FullMap extends StatefulWidget {
   const FullMap({super.key});
@@ -42,15 +41,17 @@ class FullMapState extends State<FullMap> {
         ),
         children: [
           TileLayer(
-            urlTemplate: 'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             tileSize: 256,
             maxZoom: 19,
           ),
           const BuildingLayer(),
           const LevelLayer(),
           const RoomLayer(),
-          const RoomNameLayer(),
           const SearchBarLayer(),
+          SimpleAttributionWidget(source: const Text('OpenStreetMap contributors'), onTap: () {
+            launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'));
+          },),
         ],
       ),
     );

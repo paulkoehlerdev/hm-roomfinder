@@ -17,6 +17,7 @@ dependencies:
   location: ^6.0.2
   openapi_generator_annotations: ^5.0.2
   flutter_svg: ^2.0.10+1
+  url_launcher: ^6.3.0
 
   geodata_api_sdk:
     path: ../geodata_api_sdk

@@ -23,13 +23,13 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const HMMainColor(),
-          brightness: Brightness.dark,
-        ),
-      ),
+      // darkTheme: ThemeData(
+      //   useMaterial3: true,
+      //   colorScheme: ColorScheme.fromSeed(
+      //     seedColor: const HMMainColor(),
+      //     brightness: Brightness.dark,
+      //   ),
+      // ),
       themeMode: ThemeMode.system,
       home: const LocationPermissonRequester(
         child: ProviderInitializerComponent(

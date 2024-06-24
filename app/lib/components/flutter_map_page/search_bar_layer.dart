@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:app/api/bounds_extension.dart';
 import 'package:app/providers/level_provider.dart';
 import 'package:app/providers/seach_bar_state_provider.dart';
@@ -13,6 +15,14 @@ class SearchBarLayer extends StatelessWidget {
         color: theme.colorScheme.primary,
         borderColor: theme.colorScheme.onPrimary,
         borderStrokeWidth: 2.0,
+        label: true,
+        labelStyle: TextStyle(
+          color: theme.colorScheme.onPrimary,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
+        rotateLabel: true,
+        labelPlacement: PolygonLabelPlacement.polylabel,
       );
 
   @override
@@ -23,8 +33,12 @@ class SearchBarLayer extends StatelessWidget {
         if (value.selectedFeature == null) return const SizedBox();
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          MapController.of(context)
-              .move(value.selectedFeature!.bounds!.center, 18.5);
+          final mapcontroller = MapController.of(context);
+
+          final zoom = mapcontroller.camera.zoom;
+
+          mapcontroller.move(
+              value.selectedFeature!.bounds!.center, max(zoom, 16.0));
 
           //TODO: Add way to select correct level in a building.
         });
