@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:app/api/geodata.dart';
+import 'package:hm_roomfinder/api/geodata.dart';
 import 'package:flutter/material.dart';
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 

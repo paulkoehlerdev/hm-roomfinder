@@ -1,5 +1,5 @@
-import 'package:app/components/icons/hm_logo.dart';
-import 'package:app/components/search_bar/search_bar_leading_icon.dart';
+import 'package:hm_roomfinder/components/icons/hm_logo.dart';
+import 'package:hm_roomfinder/components/search_bar/search_bar_leading_icon.dart';
 import 'package:flutter/material.dart';
 
 class SearchInputComponentBuilder {

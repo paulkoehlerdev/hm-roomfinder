@@ -1,5 +1,5 @@
-import 'package:app/providers/level_provider.dart';
-import 'package:app/providers/room_provider.dart';
+import 'package:hm_roomfinder/providers/level_provider.dart';
+import 'package:hm_roomfinder/providers/room_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';

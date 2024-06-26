@@ -1,5 +1,5 @@
-import 'package:app/components/search_bar_component.dart';
-import 'package:app/components/full_map_page.dart';
+import 'package:hm_roomfinder/components/search_bar_component.dart';
+import 'package:hm_roomfinder/components/full_map_page.dart';
 import 'package:flutter/material.dart';
 
 class HomeView extends StatelessWidget {

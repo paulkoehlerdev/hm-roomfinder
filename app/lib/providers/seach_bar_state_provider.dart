@@ -1,4 +1,4 @@
-import 'package:app/api/properties_extension.dart';
+import 'package:hm_roomfinder/api/properties_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geodata_api_sdk/geodata_api_sdk.dart';

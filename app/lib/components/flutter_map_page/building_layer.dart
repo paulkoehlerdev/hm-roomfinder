@@ -1,9 +1,9 @@
-import 'package:app/components/flutter_map_page/touchable_polygon_layer.dart';
-import 'package:app/providers/building_provider.dart';
-import 'package:app/providers/level_provider.dart';
-import 'package:app/providers/polygon_touch_provider.dart';
-import 'package:app/util/hm_main_color.dart';
-import 'package:app/util/polygon_style_extension.dart';
+import 'package:hm_roomfinder/components/flutter_map_page/touchable_polygon_layer.dart';
+import 'package:hm_roomfinder/providers/building_provider.dart';
+import 'package:hm_roomfinder/providers/level_provider.dart';
+import 'package:hm_roomfinder/providers/polygon_touch_provider.dart';
+import 'package:hm_roomfinder/util/hm_main_color.dart';
+import 'package:hm_roomfinder/util/polygon_style_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';

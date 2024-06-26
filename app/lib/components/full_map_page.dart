@@ -1,6 +1,6 @@
-import 'package:app/components/flutter_map_page/building_layer.dart';
-import 'package:app/components/flutter_map_page/level_layer.dart';
-import 'package:app/components/level_selector.dart';
+import 'package:hm_roomfinder/components/flutter_map_page/building_layer.dart';
+import 'package:hm_roomfinder/components/flutter_map_page/level_layer.dart';
+import 'package:hm_roomfinder/components/level_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';

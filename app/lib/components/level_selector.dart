@@ -1,4 +1,4 @@
-import 'package:app/providers/level_provider.dart';
+import 'package:hm_roomfinder/providers/level_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';

@@ -1,8 +1,8 @@
-import 'package:app/providers/building_provider.dart';
-import 'package:app/providers/level_provider.dart';
-import 'package:app/providers/polygon_touch_provider.dart';
-import 'package:app/providers/room_provider.dart';
-import 'package:app/providers/seach_bar_state_provider.dart';
+import 'package:hm_roomfinder/providers/building_provider.dart';
+import 'package:hm_roomfinder/providers/level_provider.dart';
+import 'package:hm_roomfinder/providers/polygon_touch_provider.dart';
+import 'package:hm_roomfinder/providers/room_provider.dart';
+import 'package:hm_roomfinder/providers/seach_bar_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

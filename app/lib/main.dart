@@ -1,7 +1,7 @@
-import 'package:app/home_view.dart';
-import 'package:app/providers/provider_initializer_component.dart';
-import 'package:app/util/hm_main_color.dart';
-import 'package:app/util/location_permission_requester.dart';
+import 'package:hm_roomfinder/home_view.dart';
+import 'package:hm_roomfinder/providers/provider_initializer_component.dart';
+import 'package:hm_roomfinder/util/hm_main_color.dart';
+import 'package:hm_roomfinder/util/location_permission_requester.dart';
 import 'package:flutter/material.dart';
 
 void main() {
