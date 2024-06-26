@@ -2,33 +2,26 @@ PODS:
   - Flutter (1.0.0)
   - location (0.0.1):
     - Flutter
-  - MapLibre (6.5.0)
-  - maplibre_gl (0.0.1):
+  - url_launcher_ios (0.0.1):
     - Flutter
-    - MapLibre (= 6.5.0)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - location (from `.symlinks/plugins/location/ios`)
-  - maplibre_gl (from `.symlinks/plugins/maplibre_gl/ios`)
-
-SPEC REPOS:
-  trunk:
-    - MapLibre
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
   location:
     :path: ".symlinks/plugins/location/ios"
-  maplibre_gl:
-    :path: ".symlinks/plugins/maplibre_gl/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   location: d5cf8598915965547c3f36761ae9cc4f4e87d22e
-  MapLibre: 0ebfa9329d313cec8bf0a5ba5a336a1dc903785e
-  maplibre_gl: 943a491fffb3337c1b9de57fd377206d18c16e34
+  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 
