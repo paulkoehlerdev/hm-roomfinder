@@ -16,6 +16,7 @@ select id,
        ST_AsGeoJSON(geom)::jsonb              as geom,
        ST_AsGeoJSON(ST_Envelope(geom))::jsonb as bound
 FROM building
+ORDER BY id
 `
 
 type GetBuildingsRow struct {
@@ -64,6 +65,7 @@ FROM door
          JOIN room as room_b on door.room_b = room_b.id
 WHERE room_a.level_id = $1
    OR room_b.level_id = $1
+ORDER BY door.id
 `
 
 type GetDoorsRow struct {
@@ -111,6 +113,7 @@ select id,
        ST_AsGeoJSON(ST_Envelope(geom))::jsonb as bound
 FROM level
 WHERE building_id = $1
+ORDER BY id
 `
 
 type GetLevelsRow struct {
@@ -158,6 +161,7 @@ select id,
        ST_AsGeoJSON(ST_Envelope(geom))::jsonb as bound
 FROM room
 WHERE level_id = $1
+ORDER BY id
 `
 
 type GetRoomsRow struct {
