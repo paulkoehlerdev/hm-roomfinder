@@ -52,8 +52,6 @@ class LocationPermissonRequester extends StatelessWidget {
     }
 
     location.onLocationChanged.listen((LocationData currentLocation) {
-      print("Location changed: ${currentLocation.latitude}, ${currentLocation.longitude}");
-
       if (currentLocation.latitude == null || currentLocation.longitude == null) {
         return;
       }

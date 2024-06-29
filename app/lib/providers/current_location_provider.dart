@@ -16,7 +16,6 @@ class CurrentLocationProvider extends ChangeNotifier {
   LatLng? get currentLocation => _currentLocation;
 
   set currentLocation(LatLng? value) {
-    print("currentLocation: $value, tracking: $_tracking");
     _currentLocation = value;
     notifyListeners();
   }
