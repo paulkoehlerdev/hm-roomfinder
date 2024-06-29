@@ -1,7 +1,7 @@
 -- name: GetBuildings :many
 select id,
        name,
-       attr,
+       COALESCE(attr, '{}'::jsonb)            as attr,
        ST_AsGeoJSON(geom)::jsonb              as geom,
        ST_AsGeoJSON(ST_Envelope(geom))::jsonb as bound
 FROM building
@@ -11,7 +11,7 @@ ORDER BY id;
 select id,
        name,
        building_id,
-       attr,
+       COALESCE(attr, '{}'::jsonb)            as attr,
        ST_AsGeoJSON(geom)::jsonb              as geom,
        ST_AsGeoJSON(ST_Envelope(geom))::jsonb as bound
 FROM level
@@ -22,7 +22,7 @@ ORDER BY id;
 select id,
        name,
        level_id,
-       attr,
+       COALESCE(attr, '{}'::jsonb)            as attr,
        ST_AsGeoJSON(geom)::jsonb              as geom,
        ST_AsGeoJSON(ST_Envelope(geom))::jsonb as bound
 FROM room
@@ -33,7 +33,7 @@ ORDER BY id;
 select door.id,
        door.room_a,
        door.room_b,
-       door.attr,
+       COALESCE(door.attr, '{}'::jsonb)            as attr,
        ST_AsGeoJSON(door.geom)::jsonb                             as geom,
        ST_AsGeoJSON(st_buffer(ST_Envelope(door.geom), 20))::jsonb as bound
 FROM door

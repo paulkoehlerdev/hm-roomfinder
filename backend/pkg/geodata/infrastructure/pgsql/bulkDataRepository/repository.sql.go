@@ -80,19 +80,27 @@ func (q *Queries) CreateDocumentIndexRoom(ctx context.Context) error {
 }
 
 const getDocumentInformation = `-- name: GetDocumentInformation :many
-SELECT doc_id, name, attr, 'building' as type, ST_AsGeoJSON(st_Centroid(geom))::jsonb as centroid
+SELECT doc_id,
+       name,
+       COALESCE(attr, '{}'::jsonb)            as attr,
+       'building'                             as type,
+       ST_AsGeoJSON(st_Centroid(geom))::jsonb as centroid
 FROM building
 WHERE doc_id IS NOT NULL
 UNION
-SELECT doc_id, name, attr, 'level' as type, ST_AsGeoJSON(st_Centroid(geom))::jsonb as centroid
+SELECT doc_id,
+       name,
+       COALESCE(attr, '{}'::jsonb)            as attr,
+       'level'                                as type,
+       ST_AsGeoJSON(st_Centroid(geom))::jsonb as centroid
 FROM level
 WHERE doc_id IS NOT NULL
 UNION
 SELECT doc_id,
        name,
-       (attr || json_build_object('level_id', level_id) :: jsonb) as attr,
-       'room'                                                     as type,
-       ST_AsGeoJSON(st_Centroid(geom))::jsonb                     as centroid
+       (COALESCE(attr, '{}'::jsonb) || json_build_object('level_id', level_id) :: jsonb) as attr,
+       'room'                                                                            as type,
+       ST_AsGeoJSON(st_Centroid(geom))::jsonb                                            as centroid
 FROM room
 WHERE doc_id IS NOT NULL
 `
@@ -133,7 +141,7 @@ func (q *Queries) GetDocumentInformation(ctx context.Context) ([]GetDocumentInfo
 
 const getGeojsonInformationFor = `-- name: GetGeojsonInformationFor :many
 SELECT name,
-       attr,
+       COALESCE(attr, '{}'::jsonb)            as attr,
        'building'                             as type,
        ST_AsGeoJSON(geom)::jsonb              as geom,
        ST_AsGeoJSON(ST_Envelope(geom))::jsonb as bound
@@ -149,7 +157,7 @@ FROM level
 WHERE doc_id = ANY ($1::bigint[])
 UNION
 SELECT name,
-       (attr || json_build_object('level_id', level_id) :: jsonb) as attr,
+       (COALESCE(attr, '{}'::jsonb) || json_build_object('level_id', level_id) :: jsonb) as attr,
        'room'                                                     as type,
        ST_AsGeoJSON(geom)::jsonb                                  as geom,
        ST_AsGeoJSON(ST_Envelope(geom))::jsonb                     as bound
