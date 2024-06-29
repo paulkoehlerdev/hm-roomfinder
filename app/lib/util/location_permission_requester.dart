@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hm_roomfinder/providers/current_location_provider.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:provider/provider.dart';
 
 class LocationPermissonRequester extends StatelessWidget {
   final Widget child;
@@ -11,13 +14,13 @@ class LocationPermissonRequester extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
-      future: requestLocationPermission(),
+      future: requestLocationPermission(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return this.child;
+          return child;
         } else {
           return Scaffold(
-            body: this.loadingChild ??
+            body: loadingChild ??
                 const Center(
                   child: CircularProgressIndicator(),
                 ),
@@ -27,13 +30,14 @@ class LocationPermissonRequester extends StatelessWidget {
     );
   }
 
-  Future<void> requestLocationPermission() async {
+  Future<void> requestLocationPermission(BuildContext context) async {
     Location location = Location();
 
     bool serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
       if (!serviceEnabled) {
+        print("Location service is not enabled");
         return;
       }
     }
@@ -42,8 +46,24 @@ class LocationPermissonRequester extends StatelessWidget {
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
       if (permissionGranted != PermissionStatus.granted) {
+        print("Location permission is not granted");
         return;
       }
     }
+
+    location.onLocationChanged.listen((LocationData currentLocation) {
+      print("Location changed: ${currentLocation.latitude}, ${currentLocation.longitude}");
+
+      if (currentLocation.latitude == null || currentLocation.longitude == null) {
+        return;
+      }
+
+      var provider = Provider.of<CurrentLocationProvider>(context, listen: false);
+
+      provider.currentLocation = LatLng(currentLocation.latitude!, currentLocation.longitude!);
+    });
+    await location.enableBackgroundMode();
+
+    print("Location permission is granted");
   }
 }

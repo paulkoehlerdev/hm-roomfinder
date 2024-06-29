@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/polygon_touch_provider.dart';
 import '../../util/polygon_style_extension.dart';
 
 class LevelLayer extends StatelessWidget {

@@ -31,8 +31,8 @@ class MyApp extends StatelessWidget {
       //   ),
       // ),
       themeMode: ThemeMode.system,
-      home: const LocationPermissonRequester(
-        child: ProviderInitializerComponent(
+      home: const ProviderInitializerComponent(
+        child: LocationPermissonRequester(
           child: HomeView(),
         ),
       ),

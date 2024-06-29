@@ -1,4 +1,5 @@
 import 'package:hm_roomfinder/providers/building_provider.dart';
+import 'package:hm_roomfinder/providers/current_location_provider.dart';
 import 'package:hm_roomfinder/providers/level_provider.dart';
 import 'package:hm_roomfinder/providers/polygon_touch_provider.dart';
 import 'package:hm_roomfinder/providers/room_provider.dart';
@@ -21,6 +22,7 @@ class ProviderInitializerComponent extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => LevelProvider()),
         ChangeNotifierProvider(create: (context) => RoomProvider()),
         ChangeNotifierProvider(create: (context) => PolygonTouchProvider()),
+        ChangeNotifierProvider(create: (context) => CurrentLocationProvider()),
       ],
       child: child,
     );

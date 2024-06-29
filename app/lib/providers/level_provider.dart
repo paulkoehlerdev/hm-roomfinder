@@ -7,15 +7,18 @@ import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 class LevelProvider extends ChangeNotifier {
   FeatureCollection? _currentLevels;
   int? _currentBuildingId;
-  int? _currentLevelId;
+  List<int>? _currentLevelId;
 
-  int? get currentLevelId => _currentLevelId;
+  List<int>? get currentLevelId => _currentLevelId;
 
   List<Polygon> get polygons {
     if (_currentLevels == null) {
       return [];
     }
-    return _currentLevels!.features.map((feature) => feature.polygon).toList();
+    return _currentLevels!.features
+        .where((element) => _currentLevelId?.contains(element.id) ?? false)
+        .map((feature) => feature.polygon)
+        .toList();
   }
 
   Map<int, String> get levelIds {
@@ -23,21 +26,27 @@ class LevelProvider extends ChangeNotifier {
       return {};
     }
 
-    return Map.fromEntries(_currentLevels!.features
-        .map((feature) {
+    return Map.fromEntries(_currentLevels!.features.map((feature) {
       return MapEntry(feature.id, feature.name);
     }));
   }
 
-  Map<String, int> get levelNames {
+  Map<String, List<int>> get levelNames {
     if (_currentLevels == null) {
       return {};
     }
 
-    return Map.fromEntries(_currentLevels!.features
-        .map((feature) {
-      return MapEntry(feature.name, feature.id);
-    }));
+    var map = <String, List<int>>{};
+
+    for (var feature in _currentLevels!.features) {
+      if (map.containsKey(feature.name)) {
+        map[feature.name]!.add(feature.id);
+      } else {
+        map[feature.name] = [feature.id];
+      }
+    }
+
+    return map;
   }
 
   Future<void> loadLevels(int buildingId) async {
@@ -52,16 +61,16 @@ class LevelProvider extends ChangeNotifier {
     final value = await GeodataRepository().levelGet(buildingId);
 
     _currentLevels = value.data;
-    _currentLevelId = value.data!.features[0].id;
+    _currentLevelId = levelNames["EG"];
     notifyListeners();
   }
 
-  void selectLevel(int? levelId) {
-    if (levelId == null) {
+  void selectLevel(String? name) {
+    if (name == null) {
       return;
     }
 
-    _currentLevelId = levelId;
+    _currentLevelId = levelNames[name];
     notifyListeners();
   }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:hm_roomfinder/api/bounds_extension.dart';
 import 'package:hm_roomfinder/api/geodata.dart';
 import 'package:hm_roomfinder/api/properties_extension.dart';
@@ -7,14 +8,14 @@ import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 import 'package:latlong2/latlong.dart';
 
 class RoomProvider extends ChangeNotifier {
-  FeatureCollection? _currentRooms;
-  int? _currentLevelId;
+  List<Feature>? _currentRooms;
+  List<int>? _currentLevelId;
 
   List<Polygon> get polygons {
     if (_currentRooms == null) {
       return [];
     }
-    return _currentRooms!.features.map((feature) => feature.polygon).toList();
+    return _currentRooms!.map((feature) => feature.polygon).toList();
   }
 
   Map<String, LatLng> get roomNames {
@@ -22,14 +23,13 @@ class RoomProvider extends ChangeNotifier {
       return {};
     }
 
-    return Map.fromEntries(_currentRooms!.features
-        .map((feature) {
+    return Map.fromEntries(_currentRooms!.map((feature) {
       return MapEntry(feature.name, feature.bounds!.center);
     }));
   }
 
-  void loadRooms(int levelId) {
-    if (_currentLevelId == levelId) {
+  void loadRooms(List<int> levelId) {
+    if (listEquals(_currentLevelId, levelId)) {
       return;
     }
 
@@ -37,8 +37,13 @@ class RoomProvider extends ChangeNotifier {
     notifyListeners();
 
     print("Loading rooms");
-    GeodataRepository().roomGet(levelId).then((value) {
-      _currentRooms = value.data;
+
+    Future.wait(levelId.map((e) => GeodataRepository().roomGet(e)))
+        .then((levels) {
+      _currentRooms = [];
+      for (var level in levels) {
+        _currentRooms!.addAll(level.data!.features);
+      }
       notifyListeners();
     });
   }

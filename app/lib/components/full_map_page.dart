@@ -3,9 +3,12 @@ import 'package:hm_roomfinder/components/flutter_map_page/level_layer.dart';
 import 'package:hm_roomfinder/components/level_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:hm_roomfinder/providers/current_location_provider.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'flutter_map_page/current_location_layer.dart';
 import 'flutter_map_page/room_layer.dart';
 import 'flutter_map_page/search_bar_layer.dart';
 
@@ -17,8 +20,8 @@ class FullMap extends StatefulWidget {
 }
 
 class FullMapState extends State<FullMap> {
-
-  static const _initialCameraPosition = LatLng(48.14312046865786, 11.56879682080509);
+  static const _initialCameraPosition =
+      LatLng(48.14312046865786, 11.56879682080509);
   static const _initialCameraZoom = 17.0;
 
   @override
@@ -28,9 +31,20 @@ class FullMapState extends State<FullMap> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const LevelSelector(),
-          FloatingActionButton(
-            onPressed: () {},
-            child: const Icon(Icons.my_location),
+          Consumer<CurrentLocationProvider>(
+            builder: (BuildContext context, CurrentLocationProvider value,
+                Widget? child) {
+              if (value.currentLocation == null) {
+                return const SizedBox();
+              }
+
+              return FloatingActionButton(
+                onPressed: () {
+                  value.tracking = true;
+                },
+                child: const Icon(Icons.my_location),
+              );
+            },
           ),
         ],
       ),
@@ -49,9 +63,13 @@ class FullMapState extends State<FullMap> {
           const LevelLayer(),
           const RoomLayer(),
           const SearchBarLayer(),
-          SimpleAttributionWidget(source: const Text('OpenStreetMap contributors'), onTap: () {
-            launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'));
-          },),
+          const CurrentLocationLayer(),
+          SimpleAttributionWidget(
+            source: const Text('OpenStreetMap contributors'),
+            onTap: () {
+              launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'));
+            },
+          ),
         ],
       ),
     );

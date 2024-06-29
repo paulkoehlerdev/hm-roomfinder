@@ -17,6 +17,12 @@ class BuildingLayer extends StatelessWidget {
     color: HMMainColor(),
   );
 
+  static _polygonStyleZoomed(ThemeData theme) => PolygonStyle(
+    color: const Color(0xffdddde8),
+    borderColor: theme.colorScheme.surface,
+    borderStrokeWidth: 2.5,
+  );
+
   @override
   Widget build(BuildContext context) {
     int last = 0;
@@ -31,8 +37,11 @@ class BuildingLayer extends StatelessWidget {
 
       if (event.camera.zoom < _zoomThreshold) {
         levelProvider.clearLevels();
+        buildingProvider.zoomed = false;
         return;
       }
+
+      buildingProvider.zoomed = true;
 
       final buildings = (buildingProvider.bounds
             ..removeWhere((key, value) =>
@@ -48,7 +57,7 @@ class BuildingLayer extends StatelessWidget {
     return Consumer<BuildingProvider>(
       builder: (BuildContext context, BuildingProvider value, Widget? child) {
         return TouchablePolygonLayer(
-          polygons: value.polygons.withStyle(_polygonStyle),
+          polygons: value.polygons.withStyle(value.zoomed ? _polygonStyleZoomed(Theme.of(context)) : _polygonStyle),
           onTap: (value) {
             Provider.of<PolygonTouchProvider>(context, listen: false).value =
                 value;

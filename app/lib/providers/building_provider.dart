@@ -7,9 +7,17 @@ import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 
 class BuildingProvider extends ChangeNotifier {
   FeatureCollection? _buildings;
+  bool _zoomed = false;
 
   BuildingProvider() {
     loadBuildings();
+  }
+
+  bool get zoomed => _zoomed;
+
+  set zoomed(bool value) {
+    _zoomed = value;
+    notifyListeners();
   }
 
   List<Polygon> get polygons {
