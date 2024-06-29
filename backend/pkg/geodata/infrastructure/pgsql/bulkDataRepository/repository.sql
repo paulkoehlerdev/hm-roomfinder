@@ -78,6 +78,6 @@ SELECT doc_id, name, attr, 'level' as type, ST_AsGeoJSON(st_Centroid(geom))::jso
 FROM level
 WHERE doc_id IS NOT NULL
 UNION
-SELECT doc_id, name, attr, 'room' as type, ST_AsGeoJSON(st_Centroid(geom))::jsonb as centroid
+SELECT doc_id, name, (attr || json_build_object('level_id', level_id)) as attr, 'room' as type, ST_AsGeoJSON(st_Centroid(geom))::jsonb as centroid
 FROM room
 WHERE doc_id IS NOT NULL;

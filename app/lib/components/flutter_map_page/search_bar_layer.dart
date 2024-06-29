@@ -35,14 +35,16 @@ class SearchBarLayer extends StatelessWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           final mapcontroller = MapController.of(context);
 
-          final zoom = mapcontroller.camera.zoom;
-
-          mapcontroller.move(
-              value.selectedFeature!.bounds!.center, max(zoom, 16.0));
+          mapcontroller.fitCamera(
+            CameraFit.bounds(
+              bounds: value.selectedFeature!.bounds!,
+              padding: const EdgeInsets.all(80.0),
+            ),
+          );
 
           //TODO: Add way to select correct level in a building.
         });
-
+xw
         return PolygonLayer(
           polygons: [value.polygon!.copyWith(_polygonStyle(Theme.of(context)))],
         );
