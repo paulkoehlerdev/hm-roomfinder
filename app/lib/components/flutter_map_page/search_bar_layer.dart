@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:hm_roomfinder/api/bounds_extension.dart';
+import 'package:hm_roomfinder/api/properties_extension.dart';
 import 'package:hm_roomfinder/providers/level_provider.dart';
 import 'package:hm_roomfinder/providers/seach_bar_state_provider.dart';
 import 'package:hm_roomfinder/util/polygon_style_extension.dart';
@@ -28,26 +29,46 @@ class SearchBarLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<SearchBarStateProvider>(
-      builder:
-          (BuildContext context, SearchBarStateProvider value, Widget? child) {
-        if (value.selectedFeature == null) return const SizedBox();
+      builder: (BuildContext context,
+          SearchBarStateProvider searchBarStateProvider, Widget? child) {
+        if (searchBarStateProvider.selectedFeature == null)
+          return const SizedBox();
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           final mapcontroller = MapController.of(context);
 
           mapcontroller.fitCamera(
             CameraFit.bounds(
-              bounds: value.selectedFeature!.bounds!,
+              bounds: searchBarStateProvider.selectedFeature!.bounds!,
               padding: const EdgeInsets.all(80.0),
             ),
           );
 
-          //TODO: Add way to select correct level in a building.
+          var levelId =
+              searchBarStateProvider.selectedFeature?.searchResultLevelId;
+          if (levelId != null) {
+            var levelProvider =
+                Provider.of<LevelProvider>(context, listen: false);
+            var levelName = levelProvider.levelIds[levelId];
+            levelProvider.selectLevel(levelName);
+          }
         });
-xw
-        return PolygonLayer(
-          polygons: [value.polygon!.copyWith(_polygonStyle(Theme.of(context)))],
-        );
+
+        return Consumer<LevelProvider>(builder:
+            (BuildContext context, LevelProvider levelProvider, Widget? child) {
+          if (!(levelProvider.currentLevelId?.contains(searchBarStateProvider
+                  .selectedFeature?.searchResultLevelId) ??
+              false)) {
+            return const SizedBox();
+          }
+
+          return PolygonLayer(
+            polygons: [
+              searchBarStateProvider.polygon!
+                  .copyWith(_polygonStyle(Theme.of(context)))
+            ],
+          );
+        });
       },
     );
   }

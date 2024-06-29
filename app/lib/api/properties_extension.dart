@@ -11,6 +11,10 @@ extension PropertiesExtension on Feature {
     return properties['name']!.asString;
   }
 
+  int? get searchResultLevelId {
+    return properties['attr']?.asMap['level_id'];
+  }
+
   Polygon get polygon {
     switch (geometry.oneOf.valueType) {
       case GeometryPolygon:
