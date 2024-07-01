@@ -7,16 +7,19 @@ import 'package:geodata_api_sdk/geodata_api_sdk.dart';
 class LevelProvider extends ChangeNotifier {
   FeatureCollection? _currentLevels;
   int? _currentBuildingId;
-  List<int>? _currentLevelId;
+  int? _selectedLevelId; // Used to select a level after loading
+  String? _currentLevelName = "EG";
 
-  List<int>? get currentLevelId => _currentLevelId;
+  List<int>? get currentLevelId => levelNames[_currentLevelName];
 
   List<Polygon> get polygons {
     if (_currentLevels == null) {
       return [];
     }
+    print('Getting polygons $_currentLevelName');
     return _currentLevels!.features
-        .where((element) => _currentLevelId?.contains(element.id) ?? false)
+        .where((element) =>
+            levelNames[_currentLevelName]?.contains(element.id) ?? false)
         .map((feature) => feature.polygon)
         .toList();
   }
@@ -49,6 +52,16 @@ class LevelProvider extends ChangeNotifier {
     return map;
   }
 
+  selectLevelByLevelId(int levelId) {
+    if (!levelIds.containsKey(levelId)) {
+      _selectedLevelId = levelId;
+      return;
+    }
+
+    _currentLevelName = levelIds[levelId];
+    notifyListeners();
+  }
+
   Future<void> loadLevels(int buildingId) async {
     if (_currentBuildingId == buildingId) {
       return;
@@ -61,22 +74,22 @@ class LevelProvider extends ChangeNotifier {
     final value = await GeodataRepository().levelGet(buildingId);
 
     _currentLevels = value.data;
-    _currentLevelId = levelNames["EG"];
+
+    if (_selectedLevelId != null) {
+      _currentLevelName = levelIds[_selectedLevelId!];
+      _selectedLevelId = null;
+    }
+
     notifyListeners();
   }
 
   void selectLevel(String? name) {
-    if (name == null) {
-      return;
-    }
-
-    _currentLevelId = levelNames[name];
+    _currentLevelName = name;
     notifyListeners();
   }
 
   Future<void> clearLevels() async {
     _currentLevels = null;
-    _currentLevelId = null;
     _currentBuildingId = null;
     notifyListeners();
   }

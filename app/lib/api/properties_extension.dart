@@ -12,7 +12,7 @@ extension PropertiesExtension on Feature {
   }
 
   int? get searchResultLevelId {
-    return properties['attr']?.asMap['level_id'];
+    return properties['attr']?.asMap['level_id'] ?? properties['levelId']?.asNum.toInt();
   }
 
   Polygon get polygon {

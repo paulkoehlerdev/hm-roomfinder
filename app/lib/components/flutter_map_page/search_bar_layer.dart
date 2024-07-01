@@ -49,8 +49,7 @@ class SearchBarLayer extends StatelessWidget {
           if (levelId != null) {
             var levelProvider =
                 Provider.of<LevelProvider>(context, listen: false);
-            var levelName = levelProvider.levelIds[levelId];
-            levelProvider.selectLevel(levelName);
+            levelProvider.selectLevelByLevelId(levelId);
           }
         });
 
