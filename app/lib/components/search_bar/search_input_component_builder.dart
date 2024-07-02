@@ -1,6 +1,8 @@
+import 'package:flutter/widgets.dart';
 import 'package:hm_roomfinder/components/icons/hm_logo.dart';
 import 'package:hm_roomfinder/components/search_bar/search_bar_leading_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:hm_roomfinder/settings_view.dart';
 
 class SearchInputComponentBuilder {
   static Widget builder(BuildContext context, SearchController controller) {
@@ -18,10 +20,20 @@ class SearchInputComponentBuilder {
       },
       hintText: 'Search for a location',
       leading: const SearchBarLeadingIcon(),
-      trailing: const <Widget>[
+      trailing: <Widget>[
         Tooltip(
           message: 'HM-Roomfinder',
-          child: HmLogoIcon(),
+          child: IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsView(),
+                ),
+              );
+            }
+          )
         )
       ],
     );
