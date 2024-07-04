@@ -1,3 +1,5 @@
+![Logo](assets/Android/foreground.png)
+
 # HM Roomfinder
 
 > This README is also available in [English](README_en.md).
@@ -7,6 +9,8 @@
 
 > [!IMPORTANT]
 > Dieses Projekt ist keine offizielle Software der Hochschule München. Es wurde im Rahmen eines Studentenprojekts im Modul "Mobile Anwendungen" erstellt.
+
+![Screenshot](docs/images/screenshot.png)
 
 ## Beschreibung
 

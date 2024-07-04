@@ -1,3 +1,5 @@
+![Logo](assets/Android/foreground.png)
+
 # HM Roomfinder
 
 > [!CAUTION]
@@ -5,6 +7,8 @@
 
 > [!IMPORTANT]
 > This Project has no official affiliation with the University of Applied Sciences Munich. It was created as part of a student project in the module "Mobile Application Development".
+
+![Screenshot](docs/images/screenshot.png)
 
 ## Introduction
 
