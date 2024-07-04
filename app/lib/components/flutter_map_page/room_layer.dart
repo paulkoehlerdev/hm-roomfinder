@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/polygon_touch_provider.dart';
+import '../../util/globals.dart';
 import '../../util/polygon_style_extension.dart';
 
 class RoomLayer extends StatelessWidget {
@@ -28,7 +29,7 @@ class RoomLayer extends StatelessWidget {
     return Consumer<RoomProvider>(
       builder: (BuildContext context, RoomProvider value, Widget? child) {
         return TouchablePolygonLayer(
-          polygons: value.polygons.withStyle(_polygonStyle(Theme.of(context))),
+          polygons: value.polygons.withStyle(_polygonStyle(lightTheme)),
           onTap: (value) {
             Provider.of<PolygonTouchProvider>(context, listen: false).value =
                 value;

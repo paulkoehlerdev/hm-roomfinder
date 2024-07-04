@@ -2,6 +2,7 @@ import 'package:hm_roomfinder/providers/level_provider.dart';
 import 'package:hm_roomfinder/providers/room_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:hm_roomfinder/util/globals.dart';
 import 'package:provider/provider.dart';
 
 import '../../util/polygon_style_extension.dart';
@@ -31,7 +32,7 @@ class LevelLayer extends StatelessWidget {
 
         return PolygonLayer(
           polygons: value.polygons.withStyle(
-            _polygonStyle(Theme.of(context),),),
+            _polygonStyle(lightTheme,),),
         );
       },
     );

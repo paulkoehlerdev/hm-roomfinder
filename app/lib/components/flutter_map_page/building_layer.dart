@@ -2,6 +2,7 @@ import 'package:hm_roomfinder/components/flutter_map_page/touchable_polygon_laye
 import 'package:hm_roomfinder/providers/building_provider.dart';
 import 'package:hm_roomfinder/providers/level_provider.dart';
 import 'package:hm_roomfinder/providers/polygon_touch_provider.dart';
+import 'package:hm_roomfinder/util/globals.dart';
 import 'package:hm_roomfinder/util/hm_main_color.dart';
 import 'package:hm_roomfinder/util/polygon_style_extension.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ class BuildingLayer extends StatelessWidget {
     return Consumer<BuildingProvider>(
       builder: (BuildContext context, BuildingProvider value, Widget? child) {
         return TouchablePolygonLayer(
-          polygons: value.polygons.withStyle(value.zoomed ? _polygonStyleZoomed(Theme.of(context)) : _polygonStyle),
+          polygons: value.polygons.withStyle(value.zoomed ? _polygonStyleZoomed(lightTheme) : _polygonStyle),
           onTap: (value) {
             Provider.of<PolygonTouchProvider>(context, listen: false).value =
                 value;

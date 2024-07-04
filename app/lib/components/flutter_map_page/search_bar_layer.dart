@@ -4,6 +4,7 @@ import 'package:hm_roomfinder/api/bounds_extension.dart';
 import 'package:hm_roomfinder/api/properties_extension.dart';
 import 'package:hm_roomfinder/providers/level_provider.dart';
 import 'package:hm_roomfinder/providers/seach_bar_state_provider.dart';
+import 'package:hm_roomfinder/util/globals.dart';
 import 'package:hm_roomfinder/util/polygon_style_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -64,7 +65,7 @@ class SearchBarLayer extends StatelessWidget {
           return PolygonLayer(
             polygons: [
               searchBarStateProvider.polygon!
-                  .copyWith(_polygonStyle(Theme.of(context)))
+                  .copyWith(_polygonStyle(lightTheme))
             ],
           );
         });

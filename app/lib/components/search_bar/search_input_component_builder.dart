@@ -23,9 +23,9 @@ class SearchInputComponentBuilder {
       trailing: <Widget>[
         Tooltip(
           message: 'HM-Roomfinder',
-          child: IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
+          child: InkWell(
+            child: const Icon(Icons.settings),
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
