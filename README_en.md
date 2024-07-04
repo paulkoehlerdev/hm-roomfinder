@@ -8,7 +8,7 @@
 > [!IMPORTANT]
 > This Project has no official affiliation with the University of Applied Sciences Munich. It was created as part of a student project in the module "Mobile Application Development".
 
-| Light Mode | Dark Mode |
+| Dark Mode | Light Mode |
 | --- | --- |
 | <img alt="Screenshot" src="docs/images/screenshot_dark.png" height="500"/> | <img alt="Screenshot" src="docs/images/screenshot_light.png" height="500"/> |
 

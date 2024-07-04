@@ -11,7 +11,7 @@
 > Dieses Projekt ist keine offizielle Software der Hochschule München. Es wurde im Rahmen eines Studentenprojekts im Modul "Mobile Anwendungen" erstellt.
 
 
-| Light Mode | Dark Mode |
+| Dark Mode | Light Mode |
 | --- | --- |
 | <img alt="Screenshot" src="docs/images/screenshot_dark.png" height="500"/> | <img alt="Screenshot" src="docs/images/screenshot_light.png" height="500"/> |
 
