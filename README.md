@@ -1,10 +1,9 @@
 # HM Roomfinder
 
+> This README is also available in [English](README_en.md).
+
 > [!CAUTION]
 > Dieses Projekt ist ein Prototyp.
-
-> [!INFO]
-> This README is also available in [English](README_en.md).
 
 > [!IMPORTANT]
 > Dieses Projekt ist keine offizielle Software der Hochschule München. Es wurde im Rahmen eines Studentenprojekts im Modul "Mobile Anwendungen" erstellt.
