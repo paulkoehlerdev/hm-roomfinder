@@ -1,4 +1,4 @@
-![Logo](assets/Android/foreground.png)
+<img alt="Logo" src="assets/Android/foreground.png" height="100"/>
 
 # HM Roomfinder
 
@@ -10,7 +10,7 @@
 > [!IMPORTANT]
 > Dieses Projekt ist keine offizielle Software der Hochschule München. Es wurde im Rahmen eines Studentenprojekts im Modul "Mobile Anwendungen" erstellt.
 
-![Screenshot](docs/images/screenshot.png)
+<img alt="Screenshot" src="docs/images/screenshot.png" height="500"/>
 
 ## Beschreibung
 

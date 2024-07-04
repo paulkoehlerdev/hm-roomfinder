@@ -1,4 +1,4 @@
-![Logo](assets/Android/foreground.png)
+<img alt="Logo" src="assets/Android/foreground.png" height="100"/>
 
 # HM Roomfinder
 
@@ -8,7 +8,7 @@
 > [!IMPORTANT]
 > This Project has no official affiliation with the University of Applied Sciences Munich. It was created as part of a student project in the module "Mobile Application Development".
 
-![Screenshot](docs/images/screenshot.png)
+<img alt="Screenshot" src="docs/images/screenshot.png" height="500"/>
 
 ## Introduction
 
