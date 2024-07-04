@@ -18,8 +18,8 @@ We would also like to thank the OSM community for the excellent base map.
 
 ## Entwicklungsteam
 
-- [Michael Albrecht](https://github.com/michael11albrecht)
-- [Paul Köhler](https://github.com/paulkoehlerdev)
+- [Michael Albrecht](https://github.com/michael11albrecht) (GS4)
+- [Paul Köhler](https://github.com/paulkoehlerdev) (GS4)
 
 ## Lizenz
 

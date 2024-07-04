@@ -20,8 +20,8 @@ Außerdem möchten wir uns bei der OSM-Community für die ausgezeichnete Basiska
 
 ## Entwicklungsteam
 
-- [Michael Albrecht](https://github.com/michael11albrecht)
-- [Paul Köhler](https://github.com/paulkoehlerdev)
+- [Michael Albrecht](https://github.com/michael11albrecht) (GS4)
+- [Paul Köhler](https://github.com/paulkoehlerdev) (GS4)
 
 ## Lizenz
 
