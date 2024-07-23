@@ -15,4 +15,12 @@ FROM ghcr.io/cirruslabs/flutter:latest AS frontend-dev
 
 WORKDIR /app
 
-CMD flutter pub get && flutter run -d web-server --web-renderer=auto --web-port=5173 --web-hostname=0.0.0.0
+RUN apt update
+RUN apt install -y --no-install-recommends entr
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/*
+
+COPY docker/frontend-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+CMD /entrypoint.sh
