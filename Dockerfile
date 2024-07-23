@@ -1,17 +1,18 @@
 
-FROM node:22.5.1 AS frontend-build
+FROM ghcr.io/cirruslabs/flutter:latest AS frontend-build
 
-COPY frontend .
+WORKDIR /app
 
-RUN npm i
-RUN npm run build
+COPY ./frontend/ .
 
+RUN flutter pub get
+RUN flutter build web --wasm
 
 FROM golang:1.22 AS backend-build
 
 COPY . .
 
-COPY --from=frontend-build build frontend/build
+COPY --from=frontend-build /app/build/web frontend/build/web
 
 RUN apt-get update && apt-get install -y gcc libc6-dev
 

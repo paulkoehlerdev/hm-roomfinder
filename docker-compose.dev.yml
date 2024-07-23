@@ -11,15 +11,15 @@ services:
       - ./:/app
     ports:
       - 8080:8080
-    working_dir: /app
-    command: go run ./cmd/hmrf -config config/dev.hcl
 
   frontend:
     container_name: hmrf_frontend
-    image: node:22.5.1
+    build:
+      target: frontend-dev
+      dockerfile: dev.Dockerfile
+    stdin_open: true
+    tty: true
     volumes:
       - ./frontend:/app
-    working_dir: /app
-    environment:
-      NODE_ENV: development
-    command: npm run dev -- --host 0.0.0.0
+      - /app/.dart_tool
+      - /app/build

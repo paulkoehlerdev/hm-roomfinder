@@ -16,5 +16,13 @@ type FrontendHandlerImpl struct {
 }
 
 func (h FrontendHandlerImpl) GetHttpHandler() http.Handler {
-	return h.Repo.GetHttpHandler()
+	return h.CrossOriginMiddleware(h.Repo.GetHttpHandler())
+}
+
+func (h FrontendHandlerImpl) CrossOriginMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cross-Origin-Embedder-Policy", "credentialless")
+		w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+		next.ServeHTTP(w, r)
+	})
 }
