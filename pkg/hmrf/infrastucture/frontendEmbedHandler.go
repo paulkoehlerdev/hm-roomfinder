@@ -11,13 +11,13 @@ import (
 	"os"
 )
 
-var _ repository.FrontendHandler = (*EmbedHandler)(nil)
+var _ repository.FrontendHandler = (*FrontendEmbedHandler)(nil)
 
-// EmbedHandler implements repository.FrontendHandler
-type EmbedHandler struct {
+// FrontendEmbedHandler implements repository.FrontendHandler
+type FrontendEmbedHandler struct {
 }
 
-func (e EmbedHandler) GetHttpHandler() http.Handler {
+func (e FrontendEmbedHandler) GetHttpHandler() http.Handler {
 	fsys, err := fs.Sub(frontend.FS, frontend.Subdir)
 	if err != nil {
 		log.Fatal(err)

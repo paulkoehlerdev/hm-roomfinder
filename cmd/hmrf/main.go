@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"flag"
 	"github.com/lmittmann/tint"
 	"github.com/paulkoehlerdev/hm-roomfinder/pkg/hmrf/application"
@@ -9,6 +10,7 @@ import (
 	"github.com/paulkoehlerdev/hm-roomfinder/pkg/hmrf/domain/service"
 	"github.com/paulkoehlerdev/hm-roomfinder/pkg/hmrf/infrastucture"
 	"github.com/paulkoehlerdev/hm-roomfinder/pkg/hmrf/interface/http"
+	"github.com/paulkoehlerdev/hm-roomfinder/pkg/libraries/sqlite"
 	"log/slog"
 	"net"
 	"net/url"
@@ -41,8 +43,32 @@ func main() {
 		Level:     conf.Logger.Level(),
 	}))
 
+	dbconn, err := sqlite.CreateDatabaseConnection(conf.Database.Path)
+	if err != nil {
+		logger.Error("error connecting to database", "error", err)
+		return
+	}
+
+	// initialize management app
+	managementApp := buildManagementApplication(dbconn, logger)
+
+	// migrate db
+	if conf.Database.MigrationTimeoutSeconds == nil {
+		conf.Database.MigrationTimeoutSeconds = ptr(30)
+	}
+	migrationTimeoutContext, cancel := context.WithTimeout(context.Background(), time.Duration(*conf.Database.MigrationTimeoutSeconds)*time.Second)
+	defer cancel()
+
+	err = managementApp.ExecuteMigrations(migrationTimeoutContext)
+	if err != nil {
+		logger.Error("error executing migrations", "error", err)
+		return
+	}
+
+	// initialize frontend app
 	frontendApp := buildFrontendApplication(conf, logger)
 
+	// initialize http server
 	server := http.ServerImpl{}
 	server.RegisterMiddleware(http.NewLoggerMiddleware(logger))
 
@@ -81,18 +107,33 @@ func buildFrontendApplication(config config, logger *slog.Logger) application.Fr
 	case config.Frontend != nil && config.Frontend.ProxyUrl != nil:
 		url, err := url.Parse(*config.Frontend.ProxyUrl)
 		if err == nil {
-			repo = infrastucture.ProxyHandler{ProxyUrl: url}
+			repo = infrastucture.FrontendProxyHandler{ProxyUrl: url}
 			logger.Debug("using proxy for frontend")
 			break
 		}
 		logger.Error("error parsing proxy url", "error", err.Error())
 		fallthrough
 	default:
-		repo = infrastucture.EmbedHandler{}
+		repo = infrastucture.FrontendEmbedHandler{}
 		logger.Debug("using embedded filesystem for frontend")
 	}
 
 	svc := service.FrontendHandlerImpl{Repo: repo}
 
 	return application.FrontendImpl{FrontendHandlerService: svc}
+}
+
+func buildManagementApplication(db *sql.DB, logger *slog.Logger) application.Management {
+	migrationsRepo := &infrastucture.SqliteMigrationsExecutor{Database: db}
+
+	migrationsSvc := &service.DatabaseMigrationsExecutorImpl{
+		Logger: logger,
+		Repo:   migrationsRepo,
+	}
+
+	return application.ManagementImpl{DBMigrationsExecutorService: migrationsSvc}
+}
+
+func ptr[T any](v T) *T {
+	return &v
 }

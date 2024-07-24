@@ -7,14 +7,14 @@ import (
 	"net/url"
 )
 
-var _ repository.FrontendHandler = (*ProxyHandler)(nil)
+var _ repository.FrontendHandler = (*FrontendProxyHandler)(nil)
 
-// ProxyHandler implements repository.FrontendHandler
-type ProxyHandler struct {
+// FrontendProxyHandler implements repository.FrontendHandler
+type FrontendProxyHandler struct {
 	ProxyUrl *url.URL
 }
 
-func (p ProxyHandler) GetHttpHandler() http.Handler {
+func (p FrontendProxyHandler) GetHttpHandler() http.Handler {
 	rp := httputil.NewSingleHostReverseProxy(p.ProxyUrl)
 	return rp
 }

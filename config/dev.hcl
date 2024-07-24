@@ -6,6 +6,10 @@ logger {
   level = "debug"
 }
 
+database {
+  path = "./hmrf.db"
+}
+
 frontend {
   proxy_url = "http://hmrf_frontend:5173"
 }

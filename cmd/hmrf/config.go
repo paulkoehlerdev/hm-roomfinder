@@ -10,7 +10,13 @@ import (
 type config struct {
 	Server   serverConfig    `hcl:"server,block"`
 	Logger   loggerConfig    `hcl:"logger,block"`
+	Database databaseConfig  `hcl:"database,block"`
 	Frontend *frontendConfig `hcl:"frontend,block"`
+}
+
+type databaseConfig struct {
+	Path                    string `hcl:"path"`
+	MigrationTimeoutSeconds *int   `hcl:"migration_timeout_millis,optional"`
 }
 
 type serverConfig struct {

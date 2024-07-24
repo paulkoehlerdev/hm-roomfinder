@@ -5,3 +5,7 @@ server {
 logger {
   level = "info"
 }
+
+database {
+  path = "/hmrf.db"
+}
